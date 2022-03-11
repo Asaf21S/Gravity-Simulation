@@ -27,6 +27,11 @@ Vector2f Planet::GetPosition()
     return Vector2f(planet.getPosition().x + planet.getRadius(), planet.getPosition().y + planet.getRadius());
 }
 
+float Planet::GetRadius()
+{
+    return planet.getRadius();
+}
+
 float Planet::GetMass()
 {
     return mass;

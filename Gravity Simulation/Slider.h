@@ -18,7 +18,7 @@ class Slider : public Drawable, public Transformable
 
 public:
 	Slider(Vector2f position, float minValue, float maxValue, float initialValue);
-	void Update(RenderWindow& window);
+	void Update(int mouseX, int mouseY);
 	float GetValue();
 	void SetValue(float newValue);
 	void SetPercentValue(float newPercentValue);

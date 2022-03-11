@@ -20,11 +20,11 @@ CheckBox::CheckBox(Vector2f position, std::string text) :
 	label.setPosition(button.getPosition().x + button.getLocalBounds().width, button.getPosition().y);
 }
 
-void CheckBox::Update(RenderWindow& window)
+void CheckBox::Update(int mouseX, int mouseY)
 {
 	if (Mouse::isButtonPressed(Mouse::Button::Left))
 	{
-		if (button.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y) && isClicked == false)
+		if (button.getGlobalBounds().contains(mouseX, mouseY) && isClicked == false)
 			checked = !checked;
 		isClicked = true;
 	}

@@ -13,7 +13,7 @@ class CheckBox : public Drawable, public Transformable
 
 public:
 	CheckBox(Vector2f position, std::string text);
-	void Update(RenderWindow& window);
+	void Update(int mouseX, int mouseY);
 
 	bool checked;
 };

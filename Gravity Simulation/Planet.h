@@ -22,6 +22,7 @@ public:
     void SetVelocity(Vector2f vel);
     void Expand();
     Vector2f GetPosition();
+    float GetRadius();
     float GetMass();
     void AddForce(Vector2f force);
     void Update(Time elapsed, bool isPaused);

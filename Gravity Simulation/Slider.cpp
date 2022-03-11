@@ -9,7 +9,7 @@ Slider::Slider(Vector2f position, float minValue, float maxValue, float initialV
 {
 	axis.setPosition(position);
 	axis.setOrigin(0, 5);
-	axis.setFillColor(Color(63, 63, 63));
+	axis.setFillColor(Color(224, 224, 224));
 
 	slider.setOrigin(Vector2f(slider.getRadius(), slider.getRadius()));
 	slider.setPosition(position);
@@ -32,11 +32,11 @@ Text Slider::GetText(float x, float y, std::string z, int fontSize) const
 	return t;
 }
 
-void Slider::Update(RenderWindow& window)
+void Slider::Update(int mouseX, int mouseY)
 {
 	if (Mouse::isButtonPressed(Mouse::Button::Left))
 	{
-		if (slider.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y) && isClicked == false)
+		if (slider.getGlobalBounds().contains(mouseX, mouseY) && isClicked == false)
 			modify = true;
 		isClicked = true;
 	}
@@ -48,19 +48,19 @@ void Slider::Update(RenderWindow& window)
 
 	if (modify)
 	{
-		if (Mouse::getPosition(window).x < axis.getPosition().x)
+		if (mouseX < axis.getPosition().x)
 		{
 			slider.setPosition(axis.getPosition().x, axis.getPosition().y);
 			sliderValue = minValue;
 		}
-		else if (Mouse::getPosition(window).x > axis.getPosition().x + axis.getSize().x)
+		else if (mouseX > axis.getPosition().x + axis.getSize().x)
 		{
 			slider.setPosition(axis.getPosition().x + axis.getSize().x, axis.getPosition().y);
 			sliderValue = maxValue;
 		}
 		else
 		{
-			slider.setPosition(Mouse::getPosition(window).x, axis.getPosition().y);
+			slider.setPosition(mouseX, axis.getPosition().y);
 			sliderValue = (minValue + ((slider.getPosition().x - axis.getPosition().x) / axis.getSize().x * (maxValue - minValue)));
 		}
 	}

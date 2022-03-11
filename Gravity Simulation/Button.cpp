@@ -1,8 +1,8 @@
 #include "Button.h"
 
-Button::Button(Vector2f position, float width, float height, void (*CallBack)(), std::string text, Color fill, Color outline) :
+Button::Button(Vector2f position, float width, float height, void (*CallBack)(), std::string text, int fontSize, Color fill, Color outline) :
 	button(Vector2f(width, height)),
-	label(text, font, 32),
+	label(text, font, fontSize),
 	isClicked(false),
 	CallBack(CallBack)
 {
@@ -20,11 +20,11 @@ Button::Button(Vector2f position, float width, float height, void (*CallBack)(),
 	label.setPosition(button.getPosition());
 }
 
-void Button::Update(RenderWindow& window)
+void Button::Update(int mouseX, int mouseY)
 {
 	if (Mouse::isButtonPressed(Mouse::Button::Left))
 	{
-		if (button.getGlobalBounds().contains(Mouse::getPosition(window).x, Mouse::getPosition(window).y) && isClicked == false)
+		if (button.getGlobalBounds().contains(mouseX, mouseY) && isClicked == false)
 			CallBack();
 		isClicked = true;
 	}
@@ -39,7 +39,19 @@ void Button::SetText(std::string text)
 void Button::draw(RenderTarget& target, RenderStates states) const
 {
 	states.texture = NULL;
+	states.transform *= getTransform();
 
-	target.draw(button);
-	target.draw(label);
+	target.draw(button, states);
+	target.draw(label, states);
+}
+
+void Button::move(float offsetX, float offsetY)
+{
+	button.move(Vector2f(offsetX, offsetY));
+	label.move(Vector2f(offsetX, offsetY));
+}
+
+bool Button::contains(Vector2f point)
+{
+	return button.getGlobalBounds().contains(point);
 }

@@ -13,7 +13,9 @@ class Button : public Drawable, public Transformable
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-	Button(Vector2f position, float width, float height, void (*f)(), std::string text, Color fill, Color outline);
-	void Update(RenderWindow& window);
+	Button(Vector2f position, float width, float height, void (*f)(), std::string text, int fontSize, Color fill, Color outline);
+	void Update(int mouseX, int mouseY);
 	void SetText(std::string text);
+	void move(float offsetX, float offsetY);
+	bool contains(Vector2f point);
 };

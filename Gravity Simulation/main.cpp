@@ -9,6 +9,17 @@
 //using namespace std;
 using namespace sf;
 void ButtonIsPressed();
+void CollapseMenu();
+void CreateMenu(RenderWindow& window);
+
+// menu items:
+RectangleShape menuBackground;
+Button collapseMenu(Vector2f(391, 35), 60, 60, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
+Slider slider1(Vector2f(100, 100), 20, 450, 30);
+Slider slider2(Vector2f(100, 200), 0, 200, 0);
+Slider slider3(Vector2f(100, 300), 0, 100, 50);
+Button btn(Vector2f(100, 400), 100, 50, ButtonIsPressed, "Label", 32, Color::White, Color::Yellow);
+CheckBox cb(Vector2f(100, 550), "This is a CheckBox");
 
 Planet p1(Vector2f(600, 100), 50);
 Planet p2(Vector2f(700, 700), 40);
@@ -16,7 +27,9 @@ PlanetSystem planetSystem;
 
 bool start = false;
 bool isClicked = false;
-bool expand = false;
+bool isCollapsed = false;
+bool showMenuItems = true;
+float maximumRadius;
 
 int main()
 {
@@ -30,13 +43,11 @@ int main()
     planetSystem.AddPlanet(p1);
     planetSystem.AddPlanet(p2);
 
-    Slider slider1(Vector2f(100, 100), 20, 450, 30);
-    Slider slider2(Vector2f(100, 200), 0, 200, 0);
-    Slider slider3(Vector2f(100, 300), 0, 100, 50);
+    menuBackground.setSize(Vector2f(350, window.getSize().y));
+    menuBackground.setFillColor(Color(32, 32, 32, 200));
+    menuBackground.setOutlineColor(Color(128, 128, 128, 200));
+    menuBackground.setOutlineThickness(6);
     slider1.SetValue(235);
-
-    Button btn(Vector2f(100, 400), 100, 50, ButtonIsPressed, "Label", Color::White, Color::Yellow);
-    CheckBox cb(Vector2f(100, 550), "This is a CheckBox");
 
     sf::Clock clock;
 
@@ -98,9 +109,10 @@ int main()
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            if (!isClicked && planetSystem.pause)
+            if (!isClicked && planetSystem.pause &&
+                !menuBackground.getGlobalBounds().contains(Vector2f(Mouse::getPosition(window))) &&
+                !collapseMenu.contains(Vector2f(Mouse::getPosition(window))))
             {
-                expand = true;
                 Planet p(Vector2f(Mouse::getPosition(window)), 0);
                 planetSystem.AddPlanet(p);
             }
@@ -109,39 +121,83 @@ int main()
         else
         {
             isClicked = false;
-            expand = false;
+            planetSystem.StopExpanding();
         }
 
-        if (expand)
-        {
-            planetSystem.Expand();
-        }
+        window.clear();
 
         sf::Time elapsed = clock.restart();
         planetSystem.Update(elapsed);
-        slider1.Update(window);
-        slider2.Update(window);
-        slider3.Update(window);
-        btn.Update(window);
-        cb.Update(window);
-
-        window.clear();
         window.draw(planetSystem);
-        window.draw(slider1);
-        window.draw(slider2);
-        window.draw(slider3);
-        window.draw(btn);
-        window.draw(cb);
+        CreateMenu(window);
+
         window.display();
     }
 
     return 0;
 }
 
+void CreateMenu(RenderWindow& window)
+{
+    int mouseX = Mouse::getPosition(window).x, mouseY = Mouse::getPosition(window).y;
+    collapseMenu.Update(mouseX, mouseY);
+    if (isCollapsed)
+    {
+        if (menuBackground.getSize().x > 40)
+        {
+            showMenuItems = false;
+            menuBackground.setSize(Vector2f(menuBackground.getSize().x - 40, menuBackground.getSize().y));
+            collapseMenu.move(-40.0f, 0);
+        }
+        else if (menuBackground.getSize().x > 0)
+        {
+            collapseMenu.move(-menuBackground.getSize().x, 0);
+            menuBackground.setSize(Vector2f(0, menuBackground.getSize().y));
+            collapseMenu.SetText(">");
+        }
+    }
+    else
+    {
+        if (menuBackground.getSize().x < 350 - 40)
+        {
+            menuBackground.setSize(Vector2f(menuBackground.getSize().x + 40, menuBackground.getSize().y));
+            collapseMenu.move(40.0f, 0);
+        }
+        else if (menuBackground.getSize().x < 350)
+        {
+            showMenuItems = true;
+            collapseMenu.move(350 - menuBackground.getSize().x, 0);
+            menuBackground.setSize(Vector2f(350, menuBackground.getSize().y));
+            collapseMenu.SetText("<");
+        }
+    }
+    window.draw(menuBackground);
+    window.draw(collapseMenu);
+
+    if (showMenuItems)
+    {
+        slider1.Update(mouseX, mouseY);
+        slider2.Update(mouseX, mouseY);
+        slider3.Update(mouseX, mouseY);
+        btn.Update(mouseX, mouseY);
+        cb.Update(mouseX, mouseY);
+        window.draw(slider1);
+        window.draw(slider2);
+        window.draw(slider3);
+        window.draw(btn);
+        window.draw(cb);
+    }
+}
+
 void ButtonIsPressed()
 {
     std::cout << "Button Click!" << std::endl;
     planetSystem.pause = !planetSystem.pause;
+}
+
+void CollapseMenu()
+{
+    isCollapsed = !isCollapsed;
 }
 
 //sf::Vertex line[] =

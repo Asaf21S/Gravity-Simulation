@@ -17,3 +17,5 @@ Handling the creation of planets by clicking on the screen - about 1 hour.
 Creating a CheckBox Class to use in menus - about 15 minutes.  
 Menu Components:  
 ![ExampleOfMenu](Media/6-3-menuExample.png?raw=true)  
+Shaping the menu area and disable the creation of a planet inside the menu - about 2 hours.
+Preventing planets from intersecting one another on creation - about 45 minutes.

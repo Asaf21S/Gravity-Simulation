@@ -4,21 +4,35 @@ PlanetSystem::PlanetSystem() :
     pause(true),
     showVelocity(false),
     showAcceleration(false),
-    showTrail(false)
+    showTrail(false),
+    expandPlanet(false),
+    currentMaxR(500)
 {}
 
 void PlanetSystem::AddPlanet(Planet planet)
 {
+    float dist;
+    currentMaxR = 500;
+    for (int i = 0; i < planets.size(); i++)
+    {
+        dist = Dist(planets[i].GetPosition(), planet.GetPosition()) - planets[i].GetRadius();
+        if (dist < currentMaxR) currentMaxR = dist;
+    }
     planets.push_back(planet);
+    if (planets[planets.size() - 1].GetRadius() >= currentMaxR) RemovePlanet();
+    else expandPlanet = true;
 }
 
-void PlanetSystem::Expand()
+void PlanetSystem::Expand(int index)
 {
-    planets.back().Expand();
+    if (index == -1) index += planets.size();
+    planets[index].Expand();
+    if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
 }
 
 void PlanetSystem::Update(sf::Time elapsed)
 {
+    if (expandPlanet) Expand();
     float len, mag;
     for (int i = 0; i < planets.size(); i++)
     {
@@ -39,6 +53,23 @@ void PlanetSystem::Update(sf::Time elapsed)
         
         planets[i].Update(elapsed, pause);
     }
+}
+
+float PlanetSystem::Dist(Vector2f p1, Vector2f p2)
+{
+    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+}
+
+void PlanetSystem::RemovePlanet(int index)
+{
+    if (index == -1) index += planets.size();
+    planets.erase(planets.begin() + index);
+    StopExpanding();
+}
+
+void PlanetSystem::StopExpanding()
+{
+    expandPlanet = false;
 }
 
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const
