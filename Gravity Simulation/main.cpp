@@ -8,21 +8,23 @@
 
 //using namespace std;
 using namespace sf;
-void ButtonIsPressed();
-void CollapseMenu();
+
+const float MENU_WIDTH = 400.0f;
+const float COLLAPSE_MENU_WIDTH = 60.0f;
+
 void CreateMenu(RenderWindow& window);
+void UpdateGConst(float value);
+void StartPause();
+void CollapseMenu();
 
 // menu items:
 RectangleShape menuBackground;
-Button collapseMenu(Vector2f(391, 35), 60, 60, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
-Slider slider1(Vector2f(100, 100), 20, 450, 30);
-Slider slider2(Vector2f(100, 200), 0, 200, 0);
-Slider slider3(Vector2f(100, 300), 0, 100, 50);
-Button btn(Vector2f(100, 400), 100, 50, ButtonIsPressed, "Label", 32, Color::White, Color::Yellow);
-CheckBox cb(Vector2f(100, 550), "This is a CheckBox");
+Text menuTitle;
+Button collapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
+Slider constG(Vector2f(MENU_WIDTH / 2, 150), 0, 100, 50, UpdateGConst);
+CheckBox cb(250, "This is a CheckBox");
+Button stateBtn(Vector2f(MENU_WIDTH / 2, 400), 100, 50, StartPause, "Start", 32, Color::White, Color::Magenta);
 
-Planet p1(Vector2f(600, 100), 50);
-Planet p2(Vector2f(700, 700), 40);
 PlanetSystem planetSystem;
 
 bool start = false;
@@ -33,23 +35,26 @@ float maximumRadius;
 
 int main()
 {
-    sf::ContextSettings settings;
+    ContextSettings settings;
     settings.antialiasingLevel = 8;
     RenderWindow window(VideoMode(1920, 1080), "Window Name", Style::Default, settings);
     window.setVerticalSyncEnabled(true); // for the application to run at the same frequency as the monitor's refresh rate
 
-    p1.SetVelocity(Vector2f(1, 2));
-    p2.SetVelocity(Vector2f(0, -1));
-    planetSystem.AddPlanet(p1);
-    planetSystem.AddPlanet(p2);
-
-    menuBackground.setSize(Vector2f(350, window.getSize().y));
+    menuBackground.setSize(Vector2f(MENU_WIDTH, window.getSize().y));
     menuBackground.setFillColor(Color(32, 32, 32, 200));
     menuBackground.setOutlineColor(Color(128, 128, 128, 200));
     menuBackground.setOutlineThickness(6);
-    slider1.SetValue(235);
+    Font font;
+    if (!font.loadFromFile("Fonts\\Neon.ttf"))
+        std::cout << "Error loading font\n";
+    menuTitle.setString("Menu");
+    menuTitle.setFont(font);
+    menuTitle.setCharacterSize(64);
+    menuTitle.setStyle(Text::Style::Underlined);
+    menuTitle.setOrigin(menuTitle.getLocalBounds().left + menuTitle.getLocalBounds().width / 2.0f, menuTitle.getLocalBounds().top + menuTitle.getLocalBounds().height / 2.0f);
+    menuTitle.setPosition(MENU_WIDTH / 2, 15 + menuTitle.getLocalBounds().height / 2.0f);
 
-    sf::Clock clock;
+    Clock clock;
 
     while (window.isOpen())
     {
@@ -76,9 +81,9 @@ int main()
                 break;
 
             case Event::MouseWheelScrolled:
-                if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+                if (event.mouseWheelScroll.wheel == Mouse::VerticalWheel)
                     std::cout << "wheel type: vertical" << std::endl;
-                else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
+                else if (event.mouseWheelScroll.wheel == Mouse::HorizontalWheel)
                     std::cout << "wheel type: horizontal" << std::endl;
                 else
                     std::cout << "wheel type: unknown" << std::endl;
@@ -88,7 +93,7 @@ int main()
                 break;
 
             case Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Right)
+                if (event.mouseButton.button == Mouse::Right)
                 {
                     std::cout << "the right button was pressed" << std::endl;
                     std::cout << "mouse x: " << event.mouseButton.x << std::endl;
@@ -101,13 +106,13 @@ int main()
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) // may return true even if your window is inactive
+        if (Keyboard::isKeyPressed(Keyboard::Left)) // may return true even if your window is inactive
         {
             // left key is pressed: move our character
             //Planet.move(1.f, 0.f);
         }
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        if (Mouse::isButtonPressed(Mouse::Left))
         {
             if (!isClicked && planetSystem.pause &&
                 !menuBackground.getGlobalBounds().contains(Vector2f(Mouse::getPosition(window))) &&
@@ -126,7 +131,7 @@ int main()
 
         window.clear();
 
-        sf::Time elapsed = clock.restart();
+        Time elapsed = clock.restart();
         planetSystem.Update(elapsed);
         window.draw(planetSystem);
         CreateMenu(window);
@@ -158,16 +163,16 @@ void CreateMenu(RenderWindow& window)
     }
     else
     {
-        if (menuBackground.getSize().x < 350 - 40)
+        if (menuBackground.getSize().x < MENU_WIDTH - 40)
         {
             menuBackground.setSize(Vector2f(menuBackground.getSize().x + 40, menuBackground.getSize().y));
             collapseMenu.move(40.0f, 0);
         }
-        else if (menuBackground.getSize().x < 350)
+        else if (menuBackground.getSize().x < MENU_WIDTH)
         {
             showMenuItems = true;
-            collapseMenu.move(350 - menuBackground.getSize().x, 0);
-            menuBackground.setSize(Vector2f(350, menuBackground.getSize().y));
+            collapseMenu.move(MENU_WIDTH - menuBackground.getSize().x, 0);
+            menuBackground.setSize(Vector2f(MENU_WIDTH, menuBackground.getSize().y));
             collapseMenu.SetText("<");
         }
     }
@@ -176,23 +181,20 @@ void CreateMenu(RenderWindow& window)
 
     if (showMenuItems)
     {
-        slider1.Update(mouseX, mouseY);
-        slider2.Update(mouseX, mouseY);
-        slider3.Update(mouseX, mouseY);
-        btn.Update(mouseX, mouseY);
+        constG.Update(mouseX, mouseY);
+        stateBtn.Update(mouseX, mouseY);
         cb.Update(mouseX, mouseY);
-        window.draw(slider1);
-        window.draw(slider2);
-        window.draw(slider3);
-        window.draw(btn);
+        window.draw(menuTitle);
+        window.draw(constG);
+        window.draw(stateBtn);
         window.draw(cb);
     }
 }
 
-void ButtonIsPressed()
+void StartPause()
 {
-    std::cout << "Button Click!" << std::endl;
     planetSystem.pause = !planetSystem.pause;
+    stateBtn.SetText(planetSystem.pause ? "Start" : "Pause");
 }
 
 void CollapseMenu()
@@ -200,11 +202,16 @@ void CollapseMenu()
     isCollapsed = !isCollapsed;
 }
 
-//sf::Vertex line[] =
+void UpdateGConst(float value)
+{
+    planetSystem.SetGConst(value);
+}
+
+//Vertex line[] =
 //{
-//    sf::Vertex(sf::Vector2f(0, 0)),
-//    sf::Vertex(planet.getPosition())
+//    Vertex(Vector2f(0, 0)),
+//    Vertex(planet.getPosition())
 //};
 //line[1].color = Color::Black;
 //
-//target.draw(line, 2, sf::Lines);
+//target.draw(line, 2, Lines);

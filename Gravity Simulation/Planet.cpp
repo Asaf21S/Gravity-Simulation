@@ -48,7 +48,7 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
     {
         lifeTime += elapsed;
         planet.move(velocity);
-        velocity += acceleration;
+        velocity += acceleration / mass;
     }
 
     acceleration.x = 0;

@@ -8,6 +8,7 @@ class Slider : public Drawable, public Transformable
 	CircleShape slider;
 	RectangleShape axis;
 	Font font;
+	void (*CallBack)(float);
 	int minValue;
 	int maxValue;
 	float sliderValue;
@@ -17,7 +18,7 @@ class Slider : public Drawable, public Transformable
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-	Slider(Vector2f position, float minValue, float maxValue, float initialValue);
+	Slider(Vector2f position, float minValue, float maxValue, float initialValue, void (*CallBack)(float));
 	void Update(int mouseX, int mouseY);
 	float GetValue();
 	void SetValue(float newValue);

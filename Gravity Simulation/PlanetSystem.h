@@ -6,11 +6,11 @@
 #include <SFML/Graphics.hpp>
 #include "Planet.h"
 using namespace sf;
-const float GRAVITATIONAL_CONSTANT = 0.2e-7;
 
 class PlanetSystem : public Drawable, public Transformable
 {
     std::vector<Planet> planets;
+    float GravitationalConst;
     bool showVelocity;
     bool showAcceleration;
     bool showTrail;
@@ -27,6 +27,7 @@ public:
     float Dist(Vector2f p1, Vector2f p2);
     void RemovePlanet(int index = -1);
     void StopExpanding();
+    void SetGConst(float value);
 
     bool pause;
 };

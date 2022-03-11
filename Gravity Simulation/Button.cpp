@@ -16,8 +16,7 @@ Button::Button(Vector2f position, float width, float height, void (*CallBack)(),
 		std::cout << "Error loading font\n";
 
 	label.setFillColor(Color::Black);
-	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
-	label.setPosition(button.getPosition());
+	SetText(text);
 }
 
 void Button::Update(int mouseX, int mouseY)
@@ -34,6 +33,8 @@ void Button::Update(int mouseX, int mouseY)
 void Button::SetText(std::string text)
 {
 	label.setString(text);
+	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
+	label.setPosition(button.getPosition());
 }
 
 void Button::draw(RenderTarget& target, RenderStates states) const

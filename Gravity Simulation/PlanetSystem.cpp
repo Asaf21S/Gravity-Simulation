@@ -1,6 +1,7 @@
 #include "PlanetSystem.h"
 
 PlanetSystem::PlanetSystem() :
+    GravitationalConst(1e-3),
     pause(true),
     showVelocity(false),
     showAcceleration(false),
@@ -44,7 +45,7 @@ void PlanetSystem::Update(sf::Time elapsed)
                 len = hypot(force.x, force.y);
                 force.x /= len;
                 force.y /= len;
-                mag = GRAVITATIONAL_CONSTANT * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
+                mag = GravitationalConst * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
                 force.x *= mag;
                 force.y *= mag;
                 planets[i].AddForce(force);
@@ -70,6 +71,11 @@ void PlanetSystem::RemovePlanet(int index)
 void PlanetSystem::StopExpanding()
 {
     expandPlanet = false;
+}
+
+void PlanetSystem::SetGConst(float value)
+{
+    GravitationalConst = value * (1e-2 - 1e-6) / 100 + 1e-6;
 }
 
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const

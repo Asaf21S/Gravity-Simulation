@@ -1,18 +1,19 @@
 #include "Slider.h"
 
-Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue) :
+Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, void (*CallBack)(float)) :
 	axis(Vector2f(200, 10)),
 	slider(12),
+	CallBack(CallBack),
 	minValue(minValue),
 	maxValue(maxValue),
 	modify(false)
 {
+	axis.setOrigin(axis.getLocalBounds().left + axis.getLocalBounds().width / 2.0f, axis.getLocalBounds().top + axis.getLocalBounds().height / 2.0f);
 	axis.setPosition(position);
-	axis.setOrigin(0, 5);
 	axis.setFillColor(Color(224, 224, 224));
 
 	slider.setOrigin(Vector2f(slider.getRadius(), slider.getRadius()));
-	slider.setPosition(position);
+	slider.setPosition(position.x - axis.getGlobalBounds().width / 2.0f, position.y);
 	slider.setFillColor(Color(102, 0, 204));
 	slider.setOutlineColor(Color(204, 153, 255));
 	slider.setOutlineThickness(-4);
@@ -48,44 +49,45 @@ void Slider::Update(int mouseX, int mouseY)
 
 	if (modify)
 	{
-		if (mouseX < axis.getPosition().x)
+		if (mouseX < axis.getGlobalBounds().left)
 		{
-			slider.setPosition(axis.getPosition().x, axis.getPosition().y);
+			slider.setPosition(axis.getGlobalBounds().left, axis.getPosition().y);
 			sliderValue = minValue;
 		}
-		else if (mouseX > axis.getPosition().x + axis.getSize().x)
+		else if (mouseX > axis.getGlobalBounds().left + axis.getSize().x)
 		{
-			slider.setPosition(axis.getPosition().x + axis.getSize().x, axis.getPosition().y);
+			slider.setPosition(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y);
 			sliderValue = maxValue;
 		}
 		else
 		{
 			slider.setPosition(mouseX, axis.getPosition().y);
-			sliderValue = (minValue + ((slider.getPosition().x - axis.getPosition().x) / axis.getSize().x * (maxValue - minValue)));
+			sliderValue = (minValue + ((slider.getPosition().x - axis.getGlobalBounds().left) / axis.getGlobalBounds().left * (maxValue - minValue)));
 		}
+		CallBack(sliderValue);
 	}
 }
 
-float Slider::GetValue()
-{
-	return sliderValue;
-}
+//float Slider::GetValue()
+//{
+//	return sliderValue;
+//}
 
 void Slider::SetValue(float newValue)
 {
 	if (newValue < minValue)
 	{
-		slider.setPosition(axis.getPosition().x, axis.getPosition().y);
+		slider.setPosition(axis.getGlobalBounds().left, axis.getPosition().y);
 		sliderValue = minValue;
 	}
 	else if (newValue > maxValue)
 	{
-		slider.setPosition(axis.getPosition().x + axis.getSize().x, axis.getPosition().y);
+		slider.setPosition(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y);
 		sliderValue = maxValue;
 	}
 	else
 	{
-		slider.setPosition(axis.getPosition().x + ((newValue - minValue) / (maxValue - minValue)) * axis.getSize().x, axis.getPosition().y);
+		slider.setPosition(axis.getGlobalBounds().left + ((newValue - minValue) / (maxValue - minValue)) * axis.getSize().x, axis.getPosition().y);
 		sliderValue = newValue;
 	}
 }
@@ -95,16 +97,16 @@ void Slider::SetPercentValue(float newPercentValue)
 	if (newPercentValue >= 0 && newPercentValue <= 100)
 	{
 		sliderValue = newPercentValue / 100 * maxValue;
-		slider.setPosition(axis.getPosition().x + (axis.getSize().x * newPercentValue / 100), axis.getPosition().y);
+		slider.setPosition(axis.getGlobalBounds().left + (axis.getSize().x * newPercentValue / 100), axis.getPosition().y);
 	}
 }
 
 void Slider::draw(RenderTarget& target, RenderStates states) const
 {
 	states.texture = NULL;
-	target.draw(GetText(axis.getPosition().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(minValue), 20));
+	target.draw(GetText(axis.getGlobalBounds().left, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(minValue), 20));
 	target.draw(axis);
-	target.draw(GetText(axis.getPosition().x + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20));
+	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20));
 	target.draw(slider);
 	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), std::to_string((int)sliderValue), 15));
 }
