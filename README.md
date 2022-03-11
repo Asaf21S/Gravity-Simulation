@@ -2,8 +2,8 @@
  Computer Graphics Lab  
 Simulate gravitational forces between planetary objects.
 ## Weekly Report
-[Week1](#anchor-link1)  
-[Week1](#anchor-link2)  
+[Week1](#272---53-6-hours-total)  
+[Week1](#63---123-10-hours-and-30-minutes-total)  
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
