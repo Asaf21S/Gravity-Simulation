@@ -20,4 +20,4 @@ Menu Components:
 Shaping the menu area and disable the creation of a planet inside the menu - about 2 hours.  
 Preventing planets from intersecting one another on creation - about 45 minutes.  
 Centralized the menu items and bindind the gravitational constant with a slider - about 1 hour and 30 minutes.  
-![ScreenShot](Media/1-3-screenShot.png?raw=true)  
+![ScreenShot](Media/11-3-screenShot.png?raw=true)  
