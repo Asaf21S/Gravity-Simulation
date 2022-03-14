@@ -3,25 +3,30 @@
 PlanetSystem::PlanetSystem() :
     GravitationalConst(1e-3),
     pause(true),
-    showVelocity(false),
+    showVelocity(true),
     showAcceleration(false),
     showTrail(false),
     expandPlanet(false),
+    setVelocityInd(-1),
     currentMaxR(500)
 {}
 
-void PlanetSystem::AddPlanet(Planet planet)
+void PlanetSystem::AddPlanet(Vector2f mousePos)
 {
-    float dist;
-    currentMaxR = 500;
-    for (int i = 0; i < planets.size(); i++)
+    if (setVelocityInd != -1) setVelocityInd = -1;
+    else
     {
-        dist = Dist(planets[i].GetPosition(), planet.GetPosition()) - planets[i].GetRadius();
-        if (dist < currentMaxR) currentMaxR = dist;
+        planets.push_back(Planet(mousePos));
+        float dist;
+        currentMaxR = 500;
+        for (int i = 0; i < planets.size() - 1; i++)
+        {
+            dist = Dist(planets[i].GetPosition(), mousePos) - planets[i].GetRadius();
+            if (dist < currentMaxR) currentMaxR = dist;
+        }
+        if (planets.back().GetRadius() >= currentMaxR) RemovePlanet();
+        else expandPlanet = true;
     }
-    planets.push_back(planet);
-    if (planets[planets.size() - 1].GetRadius() >= currentMaxR) RemovePlanet();
-    else expandPlanet = true;
 }
 
 void PlanetSystem::Expand(int index)
@@ -31,8 +36,9 @@ void PlanetSystem::Expand(int index)
     if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
 }
 
-void PlanetSystem::Update(sf::Time elapsed)
+void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity)
 {
+    this->showVelocity = showVelocity;
     if (expandPlanet) Expand();
     float len, mag;
     for (int i = 0; i < planets.size(); i++)
@@ -51,9 +57,9 @@ void PlanetSystem::Update(sf::Time elapsed)
                 planets[i].AddForce(force);
             }
         }
-        
-        planets[i].Update(elapsed, pause);
+        planets[i].Update(elapsed, pause, showVelocity);
     }
+    if (setVelocityInd != -1) planets[setVelocityInd].SetArrow(Vector2f(mousePos));
 }
 
 float PlanetSystem::Dist(Vector2f p1, Vector2f p2)
@@ -65,12 +71,26 @@ void PlanetSystem::RemovePlanet(int index)
 {
     if (index == -1) index += planets.size();
     planets.erase(planets.begin() + index);
-    StopExpanding();
+    StopExpanding(true);
 }
 
-void PlanetSystem::StopExpanding()
+bool PlanetSystem::IsPaused()
 {
-    expandPlanet = false;
+    return pause;
+}
+
+void PlanetSystem::SetPause()
+{
+    pause = !pause;
+}
+
+void PlanetSystem::StopExpanding(bool isRemoved, int index)
+{
+    if (expandPlanet)
+    {
+        expandPlanet = false;
+        if (!isRemoved) setVelocityInd = (index + planets.size()) % planets.size();
+    }
 }
 
 void PlanetSystem::SetGConst(float value)

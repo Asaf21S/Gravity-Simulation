@@ -1,9 +1,9 @@
 #include "CheckBox.h"
 
-CheckBox::CheckBox(float yPosition, std::string text) :
+CheckBox::CheckBox(float yPosition, std::string text, bool isChecked) :
 	button(Vector2f(30, 30)),
 	label(text, font, 24),
-	checked(false),
+	checked(isChecked),
 	isClicked(false)
 {
 	if (!font.loadFromFile("Fonts\\Neon.ttf"))

@@ -22,7 +22,7 @@ RectangleShape menuBackground;
 Text menuTitle;
 Button collapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
 Slider constG(Vector2f(MENU_WIDTH / 2, 150), 0, 100, 50, UpdateGConst);
-CheckBox cb(250, "This is a CheckBox");
+CheckBox cb(250, "Show Planet's Velocity", true);
 Button stateBtn(Vector2f(MENU_WIDTH / 2, 400), 100, 50, StartPause, "Start", 32, Color::White, Color::Magenta);
 
 PlanetSystem planetSystem;
@@ -114,25 +114,24 @@ int main()
 
         if (Mouse::isButtonPressed(Mouse::Left))
         {
-            if (!isClicked && planetSystem.pause &&
+            if (!isClicked && planetSystem.IsPaused() &&
                 !menuBackground.getGlobalBounds().contains(Vector2f(Mouse::getPosition(window))) &&
                 !collapseMenu.contains(Vector2f(Mouse::getPosition(window))))
             {
-                Planet p(Vector2f(Mouse::getPosition(window)), 0);
-                planetSystem.AddPlanet(p);
+                planetSystem.AddPlanet(Vector2f(Mouse::getPosition(window)));
             }
             isClicked = true;
         }
-        else
+        else if (isClicked)
         {
             isClicked = false;
-            planetSystem.StopExpanding();
+            planetSystem.StopExpanding(false);
         }
 
         window.clear();
 
         Time elapsed = clock.restart();
-        planetSystem.Update(elapsed);
+        planetSystem.Update(elapsed, Mouse::getPosition(window), cb.checked);
         window.draw(planetSystem);
         CreateMenu(window);
 
@@ -193,8 +192,8 @@ void CreateMenu(RenderWindow& window)
 
 void StartPause()
 {
-    planetSystem.pause = !planetSystem.pause;
-    stateBtn.SetText(planetSystem.pause ? "Start" : "Pause");
+    planetSystem.SetPause();
+    stateBtn.SetText(planetSystem.IsPaused() ? "Start" : "Pause");
 }
 
 void CollapseMenu()

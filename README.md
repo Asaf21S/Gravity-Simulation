@@ -23,3 +23,8 @@ Shaping the menu area and disable the creation of a planet inside the menu - abo
 Preventing planets from intersecting one another on creation - about 45 minutes.  
 Centralized the menu items and bindind the gravitational constant with a slider - about 1 hour and 30 minutes.  
 ![ScreenShot](Media/11-3-screenShot.png?raw=true)  
+
+### <ins>13.3 - 19.3:</ins> (? hours total)
+Creating the arrow from each planet which represent its velocity vector - about 3 hours  
+What I got so far:  
+<img src="Media/14-3-velocityArrow.gif" width="192" height="108" />  

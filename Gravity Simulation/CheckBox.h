@@ -12,7 +12,7 @@ class CheckBox : public Drawable, public Transformable
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-	CheckBox(float yPosition, std::string text);
+	CheckBox(float yPosition, std::string text, bool isChecked);
 	void Update(int mouseX, int mouseY);
 
 	bool checked;
