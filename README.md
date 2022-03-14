@@ -4,6 +4,7 @@ Simulate gravitational forces between planetary objects.
 ## Weekly Report
 [Week 1](#272---53-6-hours-total)  
 [Week 2](#63---123-10-hours-and-30-minutes-total)  
+[Week 3](#133---193--hours-total)  
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
