@@ -3,58 +3,108 @@
 Planet::Planet(Vector2f position) :
     planet(0),
     density(1.f),
-    acceleration(0, 0),
+    velocity(0, 0),
     velArrow(PrimitiveType::TriangleFan, 7),
-    showVelArrow(false)
+    showVelArrow(false),
+    acceleration(0, 0),
+    accArrow(PrimitiveType::TriangleFan, 7),
+    showAccArrow(false)
 {
     planet.setPosition(position);
     UpdateMass();
 
     velArrow[0].color = Color(153, 0, 0);
-    velArrow[1].color = Color(163, 15, 5);
-    velArrow[2].color = Color(163, 15, 5);
     velArrow[3].color = Color(255, 153, 51);
     velArrow[4].color = Color(255, 153, 51);
-    velArrow[5].color = Color(163, 15, 5);
-    velArrow[6].color = Color(163, 15, 5);
+
+    accArrow[0].color = Color(0, 153, 153);
+    accArrow[3].color = Color(255, 255, 255);
+    accArrow[4].color = Color(255, 255, 255);
 }
 
-void Planet::SetArrow(Vector2f mouse)
+void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
 {
     Vector2f center = GetPosition();
     float radius = planet.getRadius();
-    float distance = sqrt(pow(mouse.x - center.x, 2) + pow(mouse.y - center.y, 2));
-    if (distance < radius + ARROW_OFFSET) return;
-    showVelArrow = true;
+    float distance = sqrt(pow(arrowPoint.x - center.x, 2) + pow(arrowPoint.y - center.y, 2));
+    float lineLength = distance - (radius + ARROW_OFFSET);
+    if (lineLength < 12.0f)
+    {
+        if (isVel) showVelArrow = false;
+        else showAccArrow = false;
+        return;
+    }
 
-    Vector2f normal = Vector2f(mouse.y - center.y, center.x - mouse.x);
+    Vector2f normal = Vector2f(arrowPoint.y - center.y, center.x - arrowPoint.x);
     float len = sqrt(pow(normal.x, 2) + pow(normal.y, 2));
     normal /= len;
 
-    Vector2f circleEdge = Vector2f((distance - (radius + ARROW_OFFSET)) * center.x + (radius + ARROW_OFFSET) * mouse.x, (distance - (radius + ARROW_OFFSET)) * center.y + (radius + ARROW_OFFSET) * mouse.y);
+    Vector2f circleEdge = Vector2f(lineLength * center.x + (radius + ARROW_OFFSET) * arrowPoint.x, lineLength * center.y + (radius + ARROW_OFFSET) * arrowPoint.y);
     circleEdge /= distance;
 
-    Vector2f arrowEdge = Vector2f(center.x + 9 * mouse.x, center.y + 9 * mouse.y);
-    arrowEdge /= 10.0f;
+    float arrowLength = lineLength <= 56.0f ? lineLength / 2.0f : 28.0f;
+    float arrowWidth = arrowLength / 1.732; // approx. sqrt(3)
+    float lengthRatio = arrowLength / lineLength;
 
-    velArrow[0].position = mouse;
-    velArrow[1].position = arrowEdge + 16.0f * normal;
-    velArrow[2].position = arrowEdge + 3.0f * normal;
-    velArrow[3].position = circleEdge + 3.0f * normal;
-    velArrow[4].position = circleEdge - 3.0f * normal;
-    velArrow[5].position = arrowEdge - 3.0f * normal;
-    velArrow[6].position = arrowEdge - 16.0f * normal;
+    Vector2f arrowEdge = Vector2f(lengthRatio * circleEdge.x + (1 - lengthRatio) * arrowPoint.x, lengthRatio * circleEdge.y + (1 - lengthRatio) * arrowPoint.y);
 
-    velocity = mouse - circleEdge;
-    velocity /= ARROW_LENGTH_TO_VELOCITY;
+    float lineWidth = arrowWidth * 0.1875f; // 3/16
+    if (lineWidth < 0.5f) lineWidth = 0.5f;
+
+    Vector2f normalToLine = lineWidth * normal, normalToArrow = arrowWidth * normal;
+    
+    if (isVel)
+    {
+        velArrow[0].position = arrowPoint;
+        velArrow[1].position = arrowEdge + normalToArrow;
+        velArrow[2].position = arrowEdge + normalToLine;
+        velArrow[3].position = circleEdge + normalToLine;
+        velArrow[4].position = circleEdge - normalToLine;
+        velArrow[5].position = arrowEdge - normalToLine;
+        velArrow[6].position = arrowEdge - normalToArrow;
+
+        Color arrowCol = Color( (1 - lengthRatio) * velArrow[0].color.r + lengthRatio * velArrow[3].color.r,
+                                (1 - lengthRatio) * velArrow[0].color.g + lengthRatio * velArrow[3].color.g,
+                                (1 - lengthRatio) * velArrow[0].color.b + lengthRatio * velArrow[3].color.b );
+        velArrow[1].color = arrowCol;
+        velArrow[2].color = arrowCol;
+        velArrow[5].color = arrowCol;
+        velArrow[6].color = arrowCol;
+
+        velocity = arrowPoint - circleEdge;
+        velocity /= ARROW_LENGTH_TO_VELOCITY;
+    }
+    else
+    {
+        accArrow[0].position = arrowPoint;
+        accArrow[1].position = arrowEdge + normalToArrow;
+        accArrow[2].position = arrowEdge + normalToLine;
+        accArrow[3].position = circleEdge + normalToLine;
+        accArrow[4].position = circleEdge - normalToLine;
+        accArrow[5].position = arrowEdge - normalToLine;
+        accArrow[6].position = arrowEdge - normalToArrow;
+
+        Color arrowCol = Color( (1 - lengthRatio) * accArrow[0].color.r + lengthRatio * accArrow[3].color.r,
+                                (1 - lengthRatio) * accArrow[0].color.g + lengthRatio * accArrow[3].color.g,
+                                (1 - lengthRatio) * accArrow[0].color.b + lengthRatio * accArrow[3].color.b );
+        accArrow[1].color = arrowCol;
+        accArrow[2].color = arrowCol;
+        accArrow[5].color = arrowCol;
+        accArrow[6].color = arrowCol;
+
+        acceleration = arrowPoint - circleEdge;
+        acceleration /= ARROW_LENGTH_TO_ACCELERATION;
+    }
 }
 
-void Planet::UpdateArrow()
+void Planet::UpdateArrow(bool isVel)
 {
-    Vector2f arrow = velocity * ARROW_LENGTH_TO_VELOCITY;
+    Vector2f arrow;
+    if (isVel) arrow = velocity * ARROW_LENGTH_TO_VELOCITY;
+    else arrow = acceleration * ARROW_LENGTH_TO_ACCELERATION;
     float length = sqrt(pow(arrow.x, 2) + pow(arrow.y, 2));
     float distance = length + planet.getRadius() + ARROW_OFFSET;
-    SetArrow(GetPosition() + (arrow / length * distance));
+    SetArrow(GetPosition() + (arrow / length * distance), isVel);
 }
 
 void Planet::SetVelocity(Vector2f vel)
@@ -90,19 +140,20 @@ void Planet::AddForce(Vector2f force)
     acceleration += force;
 }
 
-void Planet::Update(sf::Time elapsed, bool isPaused, bool showVelArrow)
+void Planet::Update(sf::Time elapsed, bool isPaused, bool showVelArrow, bool showAccArrow)
 {
-    this->showVelArrow = showVelArrow;
-    if (showVelArrow) UpdateArrow();
+    // acceleration is currently the sum of all forces, so according to the equation - F=ma, we need to divide by the mass of the planet
+    acceleration /= mass;
     if (!isPaused)
     {
         lifeTime += elapsed;
         planet.move(velocity);
-        velocity += acceleration / mass;
+        velocity += acceleration;
     }
-
-    acceleration.x = 0;
-    acceleration.y = 0;
+    this->showVelArrow = showVelArrow;
+    if (showVelArrow) UpdateArrow();
+    this->showAccArrow = showAccArrow;
+    if (showAccArrow) UpdateArrow(false);
 }
 
 void Planet::UpdateMass()
@@ -126,4 +177,8 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
     // draw the velocity arrow
     if (showVelArrow)
         target.draw(velArrow, states);
+
+    // draw the acceleration arrow
+    if (showAccArrow)
+        target.draw(accArrow, states);
 }

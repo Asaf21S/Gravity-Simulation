@@ -25,7 +25,7 @@ public:
     PlanetSystem();
     void AddPlanet(Vector2f mousePos);
     void Expand(int index = -1);
-    void Update(Time elapsed, Vector2i mousePos, bool showVelocity);
+    void Update(Time elapsed, Vector2i mousePos, bool showVelocity, bool showAcceleration);
     float Dist(Vector2f p1, Vector2f p2);
     void RemovePlanet(int index = -1);
     bool IsPaused();

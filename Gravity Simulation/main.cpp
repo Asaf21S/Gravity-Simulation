@@ -22,8 +22,9 @@ RectangleShape menuBackground;
 Text menuTitle;
 Button collapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
 Slider constG(Vector2f(MENU_WIDTH / 2, 150), 0, 100, 50, UpdateGConst);
-CheckBox cb(250, "Show Planet's Velocity", true);
-Button stateBtn(Vector2f(MENU_WIDTH / 2, 400), 100, 50, StartPause, "Start", 32, Color::White, Color::Magenta);
+CheckBox cbVel(250, "Show Planet's Velocity", true);
+CheckBox cbAcc(350, "Show Planet's Acceleration", false);
+Button stateBtn(Vector2f(MENU_WIDTH / 2, 450), 100, 50, StartPause, "Start", 32, Color::White, Color::Magenta);
 
 PlanetSystem planetSystem;
 
@@ -131,7 +132,7 @@ int main()
         window.clear();
 
         Time elapsed = clock.restart();
-        planetSystem.Update(elapsed, Mouse::getPosition(window), cb.checked);
+        planetSystem.Update(elapsed, Mouse::getPosition(window), cbVel.checked, cbAcc.checked);
         window.draw(planetSystem);
         CreateMenu(window);
 
@@ -182,11 +183,13 @@ void CreateMenu(RenderWindow& window)
     {
         constG.Update(mouseX, mouseY);
         stateBtn.Update(mouseX, mouseY);
-        cb.Update(mouseX, mouseY);
+        cbVel.Update(mouseX, mouseY);
+        cbAcc.Update(mouseX, mouseY);
         window.draw(menuTitle);
         window.draw(constG);
         window.draw(stateBtn);
-        window.draw(cb);
+        window.draw(cbVel);
+        window.draw(cbAcc);
     }
 }
 

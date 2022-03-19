@@ -36,13 +36,16 @@ void PlanetSystem::Expand(int index)
     if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
 }
 
-void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity)
+void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity, bool showAcceleration)
 {
     this->showVelocity = showVelocity;
+    this->showAcceleration = showAcceleration;
     if (expandPlanet) Expand();
     float len, mag;
     for (int i = 0; i < planets.size(); i++)
     {
+        planets[i].acceleration.x = 0;
+        planets[i].acceleration.y = 0;
         for (int j = 0; j < planets.size(); j++)
         {
             if (i != j)
@@ -57,9 +60,10 @@ void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity)
                 planets[i].AddForce(force);
             }
         }
-        planets[i].Update(elapsed, pause, showVelocity);
+        planets[i].Update(elapsed, pause, showVelocity, showAcceleration);
     }
     if (setVelocityInd != -1) planets[setVelocityInd].SetArrow(Vector2f(mousePos));
+    
 }
 
 float PlanetSystem::Dist(Vector2f p1, Vector2f p2)
