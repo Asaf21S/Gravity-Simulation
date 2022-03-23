@@ -1,9 +1,9 @@
 #include "Slider.h"
 
-Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, void (*CallBack)(float)) :
+Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, Font& font) :
 	axis(Vector2f(200, 10)),
+	font(font),
 	slider(12),
-	CallBack(CallBack),
 	minValue(minValue),
 	maxValue(maxValue),
 	modify(false)
@@ -18,9 +18,6 @@ Slider::Slider(Vector2f position, float minValue, float maxValue, float initialV
 	slider.setOutlineColor(Color(204, 153, 255));
 	slider.setOutlineThickness(-4);
 
-	if (!font.loadFromFile("Fonts\\Neon.ttf"))
-		std::cout << "Error loading font\n";
-
 	SetValue(initialValue);
 }
 
@@ -33,45 +30,39 @@ Text Slider::GetText(float x, float y, std::string z, int fontSize) const
 	return t;
 }
 
-void Slider::Update(int mouseX, int mouseY)
+void Slider::SetModify(bool mod)
 {
-	if (Mouse::isButtonPressed(Mouse::Button::Left))
+	modify = mod;
+}
+
+bool Slider::GetModify()
+{
+	return modify;
+}
+
+void Slider::Update(float mouseX)
+{
+	if (mouseX < axis.getGlobalBounds().left)
 	{
-		if (slider.getGlobalBounds().contains(mouseX, mouseY) && isClicked == false)
-			modify = true;
-		isClicked = true;
+		slider.setPosition(axis.getGlobalBounds().left, axis.getPosition().y);
+		sliderValue = minValue;
+	}
+	else if (mouseX > axis.getGlobalBounds().left + axis.getSize().x)
+	{
+		slider.setPosition(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y);
+		sliderValue = maxValue;
 	}
 	else
 	{
-		modify = false;
-		isClicked = false;
-	}
-
-	if (modify)
-	{
-		if (mouseX < axis.getGlobalBounds().left)
-		{
-			slider.setPosition(axis.getGlobalBounds().left, axis.getPosition().y);
-			sliderValue = minValue;
-		}
-		else if (mouseX > axis.getGlobalBounds().left + axis.getSize().x)
-		{
-			slider.setPosition(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y);
-			sliderValue = maxValue;
-		}
-		else
-		{
-			slider.setPosition(mouseX, axis.getPosition().y);
-			sliderValue = (minValue + ((slider.getPosition().x - axis.getGlobalBounds().left) / axis.getGlobalBounds().left * (maxValue - minValue)));
-		}
-		CallBack(sliderValue);
+		slider.setPosition(mouseX, axis.getPosition().y);
+		sliderValue = (minValue + ((slider.getPosition().x - axis.getGlobalBounds().left) / axis.getGlobalBounds().width * (maxValue - minValue)));
 	}
 }
 
-//float Slider::GetValue()
-//{
-//	return sliderValue;
-//}
+float Slider::GetValue()
+{
+	return sliderValue;
+}
 
 void Slider::SetValue(float newValue)
 {
@@ -109,4 +100,9 @@ void Slider::draw(RenderTarget& target, RenderStates states) const
 	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20));
 	target.draw(slider);
 	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), std::to_string((int)sliderValue), 15));
+}
+
+bool Slider::contains(Vector2f point)
+{
+	return slider.getGlobalBounds().contains(point);
 }

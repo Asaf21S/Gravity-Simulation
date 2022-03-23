@@ -1,21 +1,19 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <iostream>
+#include "PlanetSystem.h"
 using namespace sf;
 
 class Button : public Drawable, public Transformable
 {
 	RectangleShape button;
-	Font font;
+	std::string text1, text2;
 	Text label;
-	void (*CallBack)();
-	bool isClicked;
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-	Button(Vector2f position, float width, float height, void (*f)(), std::string text, int fontSize, Color fill, Color outline);
-	void Update(int mouseX, int mouseY);
-	void SetText(std::string text);
+	Button(Vector2f position, float width, float height, std::string text1, std::string text2, Font& font, int fontSize, Color fill, Color outline);
+	void ButtonPressed();
 	void move(float offsetX, float offsetY);
 	bool contains(Vector2f point);
 };

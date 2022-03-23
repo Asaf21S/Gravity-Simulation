@@ -19,20 +19,23 @@ class Planet : public Drawable, public Transformable
     Vector2f velocity;
     VertexArray velArrow;
     bool showVelArrow;
+    bool velTooSmall;
     Vector2f acceleration;
     VertexArray accArrow;
     bool showAccArrow;
+    bool accTooSmall;
     Time lifeTime;
 
-    void SetArrow(Vector2f arrowPoint, bool isVel = true);
-    void UpdateArrow(bool isVel = true);
+    void SetArrow(Vector2f arrowPoint, bool isVel);
+    void UpdateArrow(bool isVel);
     void SetVelocity(Vector2f vel);
+    void SetArrowVisibility(bool isVel);
     void Expand();
     Vector2f GetPosition();
     float GetRadius();
     float GetMass();
     void AddForce(Vector2f force);
-    void Update(Time elapsed, bool isPaused, bool showVelArrow, bool showAccArrow);
+    void Update(Time elapsed, bool isPaused);
     void UpdateMass();
     virtual void draw(RenderTarget& target, RenderStates states) const;
 

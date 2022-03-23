@@ -2,37 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include "PlanetSystem.h"
 #include "Planet.h"
-#include "Slider.h"
-#include "Button.h"
-#include "CheckBox.h"
+#include "Menu.h"
 
 //using namespace std;
 using namespace sf;
-
-const float MENU_WIDTH = 400.0f;
-const float COLLAPSE_MENU_WIDTH = 60.0f;
-
-void CreateMenu(RenderWindow& window);
-void UpdateGConst(float value);
-void StartPause();
-void CollapseMenu();
-
-// menu items:
-RectangleShape menuBackground;
-Text menuTitle;
-Button collapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, CollapseMenu, "<", 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200));
-Slider constG(Vector2f(MENU_WIDTH / 2, 150), 0, 100, 50, UpdateGConst);
-CheckBox cbVel(250, "Show Planet's Velocity", true);
-CheckBox cbAcc(350, "Show Planet's Acceleration", false);
-Button stateBtn(Vector2f(MENU_WIDTH / 2, 450), 100, 50, StartPause, "Start", 32, Color::White, Color::Magenta);
-
-PlanetSystem planetSystem;
-
-bool start = false;
-bool isClicked = false;
-bool isCollapsed = false;
-bool showMenuItems = true;
-float maximumRadius;
 
 int main()
 {
@@ -41,21 +14,15 @@ int main()
     RenderWindow window(VideoMode(1920, 1080), "Window Name", Style::Default, settings);
     window.setVerticalSyncEnabled(true); // for the application to run at the same frequency as the monitor's refresh rate
 
-    menuBackground.setSize(Vector2f(MENU_WIDTH, window.getSize().y));
-    menuBackground.setFillColor(Color(32, 32, 32, 200));
-    menuBackground.setOutlineColor(Color(128, 128, 128, 200));
-    menuBackground.setOutlineThickness(6);
     Font font;
     if (!font.loadFromFile("Fonts\\Neon.ttf"))
         std::cout << "Error loading font\n";
-    menuTitle.setString("Menu");
-    menuTitle.setFont(font);
-    menuTitle.setCharacterSize(64);
-    menuTitle.setStyle(Text::Style::Underlined);
-    menuTitle.setOrigin(menuTitle.getLocalBounds().left + menuTitle.getLocalBounds().width / 2.0f, menuTitle.getLocalBounds().top + menuTitle.getLocalBounds().height / 2.0f);
-    menuTitle.setPosition(MENU_WIDTH / 2, 15 + menuTitle.getLocalBounds().height / 2.0f);
+    Menu menu(font);
+    PlanetSystem planetSystem;
+    menu.Init(planetSystem, window.getSize().y);
 
     Clock clock;
+    bool isClicked = false;
 
     while (window.isOpen())
     {
@@ -115,98 +82,39 @@ int main()
 
         if (Mouse::isButtonPressed(Mouse::Left))
         {
-            if (!isClicked && planetSystem.IsPaused() &&
-                !menuBackground.getGlobalBounds().contains(Vector2f(Mouse::getPosition(window))) &&
-                !collapseMenu.contains(Vector2f(Mouse::getPosition(window))))
+            if (!isClicked)
             {
-                planetSystem.AddPlanet(Vector2f(Mouse::getPosition(window)));
+                // Mouse is first clicked
+                if (menu.IsClickInside(Vector2f(Mouse::getPosition(window))))
+                    menu.MouseClicked(Vector2f(Mouse::getPosition(window)), planetSystem);
+                else
+                    planetSystem.MouseClicked(Vector2f(Mouse::getPosition(window)));
             }
             isClicked = true;
         }
         else if (isClicked)
         {
+            // Mouse click is released
             isClicked = false;
             planetSystem.StopExpanding(false);
+            menu.MouseReleased();
         }
 
         window.clear();
-
         Time elapsed = clock.restart();
-        planetSystem.Update(elapsed, Mouse::getPosition(window), cbVel.checked, cbAcc.checked);
+
+        planetSystem.Update(elapsed);
+        if (planetSystem.TrackMouse()) planetSystem.UpdateArrow(Vector2f(Mouse::getPosition(window)));
+        if (menu.TrackMouse()) menu.UpdateSlider(float(Mouse::getPosition(window).x), planetSystem);
+        if (menu.MenuIsCollapsed()) menu.CollapseMenu();
+
         window.draw(planetSystem);
-        CreateMenu(window);
+        window.draw(menu);
 
         window.display();
     }
 
     return 0;
-}
-
-void CreateMenu(RenderWindow& window)
-{
-    int mouseX = Mouse::getPosition(window).x, mouseY = Mouse::getPosition(window).y;
-    collapseMenu.Update(mouseX, mouseY);
-    if (isCollapsed)
-    {
-        if (menuBackground.getSize().x > 40)
-        {
-            showMenuItems = false;
-            menuBackground.setSize(Vector2f(menuBackground.getSize().x - 40, menuBackground.getSize().y));
-            collapseMenu.move(-40.0f, 0);
-        }
-        else if (menuBackground.getSize().x > 0)
-        {
-            collapseMenu.move(-menuBackground.getSize().x, 0);
-            menuBackground.setSize(Vector2f(0, menuBackground.getSize().y));
-            collapseMenu.SetText(">");
-        }
-    }
-    else
-    {
-        if (menuBackground.getSize().x < MENU_WIDTH - 40)
-        {
-            menuBackground.setSize(Vector2f(menuBackground.getSize().x + 40, menuBackground.getSize().y));
-            collapseMenu.move(40.0f, 0);
-        }
-        else if (menuBackground.getSize().x < MENU_WIDTH)
-        {
-            showMenuItems = true;
-            collapseMenu.move(MENU_WIDTH - menuBackground.getSize().x, 0);
-            menuBackground.setSize(Vector2f(MENU_WIDTH, menuBackground.getSize().y));
-            collapseMenu.SetText("<");
-        }
-    }
-    window.draw(menuBackground);
-    window.draw(collapseMenu);
-
-    if (showMenuItems)
-    {
-        constG.Update(mouseX, mouseY);
-        stateBtn.Update(mouseX, mouseY);
-        cbVel.Update(mouseX, mouseY);
-        cbAcc.Update(mouseX, mouseY);
-        window.draw(menuTitle);
-        window.draw(constG);
-        window.draw(stateBtn);
-        window.draw(cbVel);
-        window.draw(cbAcc);
-    }
-}
-
-void StartPause()
-{
-    planetSystem.SetPause();
-    stateBtn.SetText(planetSystem.IsPaused() ? "Start" : "Pause");
-}
-
-void CollapseMenu()
-{
-    isCollapsed = !isCollapsed;
-}
-
-void UpdateGConst(float value)
-{
-    planetSystem.SetGConst(value);
 }
 
 //Vertex line[] =

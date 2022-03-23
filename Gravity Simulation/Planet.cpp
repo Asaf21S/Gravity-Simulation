@@ -6,9 +6,11 @@ Planet::Planet(Vector2f position) :
     velocity(0, 0),
     velArrow(PrimitiveType::TriangleFan, 7),
     showVelArrow(false),
+    velTooSmall(true),
     acceleration(0, 0),
     accArrow(PrimitiveType::TriangleFan, 7),
-    showAccArrow(false)
+    showAccArrow(false),
+    accTooSmall(true)
 {
     planet.setPosition(position);
     UpdateMass();
@@ -30,10 +32,12 @@ void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
     float lineLength = distance - (radius + ARROW_OFFSET);
     if (lineLength < 12.0f)
     {
-        if (isVel) showVelArrow = false;
-        else showAccArrow = false;
+        if (isVel) velTooSmall = true;
+        else accTooSmall = true;
         return;
     }
+    if (isVel) velTooSmall = false;
+    else accTooSmall = false;
 
     Vector2f normal = Vector2f(arrowPoint.y - center.y, center.x - arrowPoint.x);
     float len = sqrt(pow(normal.x, 2) + pow(normal.y, 2));
@@ -112,6 +116,12 @@ void Planet::SetVelocity(Vector2f vel)
     velocity = vel;
 }
 
+void Planet::SetArrowVisibility(bool isVel)
+{
+    if (isVel) showVelArrow = !showVelArrow;
+    else showAccArrow = !showAccArrow;
+}
+
 void Planet::Expand()
 {
     float factor = 1;
@@ -140,7 +150,7 @@ void Planet::AddForce(Vector2f force)
     acceleration += force;
 }
 
-void Planet::Update(sf::Time elapsed, bool isPaused, bool showVelArrow, bool showAccArrow)
+void Planet::Update(sf::Time elapsed, bool isPaused)
 {
     // acceleration is currently the sum of all forces, so according to the equation - F=ma, we need to divide by the mass of the planet
     acceleration /= mass;
@@ -150,9 +160,7 @@ void Planet::Update(sf::Time elapsed, bool isPaused, bool showVelArrow, bool sho
         planet.move(velocity);
         velocity += acceleration;
     }
-    this->showVelArrow = showVelArrow;
-    if (showVelArrow) UpdateArrow();
-    this->showAccArrow = showAccArrow;
+    if (showVelArrow) UpdateArrow(true);
     if (showAccArrow) UpdateArrow(false);
 }
 
@@ -175,10 +183,10 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
     target.draw(planet, states);
 
     // draw the velocity arrow
-    if (showVelArrow)
+    if (showVelArrow && !velTooSmall)
         target.draw(velArrow, states);
 
     // draw the acceleration arrow
-    if (showAccArrow)
+    if (showAccArrow && !accTooSmall)
         target.draw(accArrow, states);
 }

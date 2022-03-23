@@ -1,31 +1,32 @@
 #include "PlanetSystem.h"
 
 PlanetSystem::PlanetSystem() :
-    GravitationalConst(1e-3),
-    pause(true),
-    showVelocity(true),
-    showAcceleration(false),
+    GravitationalConst(1e-2),
+    isPaused(true),
     showTrail(false),
     expandPlanet(false),
     setVelocityInd(-1),
     currentMaxR(500)
 {}
 
-void PlanetSystem::AddPlanet(Vector2f mousePos)
+void PlanetSystem::MouseClicked(Vector2f mousePos)
 {
-    if (setVelocityInd != -1) setVelocityInd = -1;
-    else
+    if (isPaused)
     {
-        planets.push_back(Planet(mousePos));
-        float dist;
-        currentMaxR = 500;
-        for (int i = 0; i < planets.size() - 1; i++)
+        if (setVelocityInd != -1) setVelocityInd = -1;
+        else
         {
-            dist = Dist(planets[i].GetPosition(), mousePos) - planets[i].GetRadius();
-            if (dist < currentMaxR) currentMaxR = dist;
+            planets.push_back(Planet(mousePos));
+            float dist;
+            currentMaxR = 500;
+            for (int i = 0; i < planets.size() - 1; i++)
+            {
+                dist = Dist(planets[i].GetPosition(), mousePos) - planets[i].GetRadius();
+                if (dist < currentMaxR) currentMaxR = dist;
+            }
+            if (planets.back().GetRadius() >= currentMaxR) RemovePlanet();
+            else expandPlanet = true;
         }
-        if (planets.back().GetRadius() >= currentMaxR) RemovePlanet();
-        else expandPlanet = true;
     }
 }
 
@@ -36,10 +37,8 @@ void PlanetSystem::Expand(int index)
     if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
 }
 
-void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity, bool showAcceleration)
+void PlanetSystem::Update(Time elapsed)
 {
-    this->showVelocity = showVelocity;
-    this->showAcceleration = showAcceleration;
     if (expandPlanet) Expand();
     float len, mag;
     for (int i = 0; i < planets.size(); i++)
@@ -60,10 +59,19 @@ void PlanetSystem::Update(Time elapsed, Vector2i mousePos, bool showVelocity, bo
                 planets[i].AddForce(force);
             }
         }
-        planets[i].Update(elapsed, pause, showVelocity, showAcceleration);
+        // need to call planets[i].SetArrowVisibility before calling planets[i].Update
+        planets[i].Update(elapsed, isPaused);
     }
-    if (setVelocityInd != -1) planets[setVelocityInd].SetArrow(Vector2f(mousePos));
-    
+}
+
+void PlanetSystem::UpdateArrow(Vector2f mousePos)
+{
+    planets[setVelocityInd].SetArrow(mousePos, true);
+}
+
+bool PlanetSystem::TrackMouse()
+{
+    return setVelocityInd != -1;
 }
 
 float PlanetSystem::Dist(Vector2f p1, Vector2f p2)
@@ -78,14 +86,32 @@ void PlanetSystem::RemovePlanet(int index)
     StopExpanding(true);
 }
 
-bool PlanetSystem::IsPaused()
+bool PlanetSystem::GetState()
 {
-    return pause;
+    return isPaused;
 }
 
-void PlanetSystem::SetPause()
+void PlanetSystem::SetState()
 {
-    pause = !pause;
+    isPaused = !isPaused;
+}
+
+void PlanetSystem::SetVelVisibility()
+{
+    showVel = !showVel;
+    for (int i = 0; i < planets.size(); i++)
+    {
+        planets[i].SetArrowVisibility(true);
+    }
+}
+
+void PlanetSystem::SetAccVisibility()
+{
+    showAcc = !showAcc;
+    for (int i = 0; i < planets.size(); i++)
+    {
+        planets[i].SetArrowVisibility(false);
+    }
 }
 
 void PlanetSystem::StopExpanding(bool isRemoved, int index)
@@ -93,13 +119,18 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
     if (expandPlanet)
     {
         expandPlanet = false;
-        if (!isRemoved) setVelocityInd = (index + planets.size()) % planets.size();
+        if (!isRemoved)
+        {
+            setVelocityInd = (index + planets.size()) % planets.size();
+            if (showVel) planets[setVelocityInd].SetArrowVisibility(true);
+            if (showAcc) planets[setVelocityInd].SetArrowVisibility(false);
+        }
     }
 }
 
 void PlanetSystem::SetGConst(float value)
 {
-    GravitationalConst = value * (1e-2 - 1e-6) / 100 + 1e-6;
+    GravitationalConst = value / 1e4;
 }
 
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const

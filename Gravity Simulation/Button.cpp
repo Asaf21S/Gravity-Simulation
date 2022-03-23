@@ -1,10 +1,10 @@
 #include "Button.h"
 
-Button::Button(Vector2f position, float width, float height, void (*CallBack)(), std::string text, int fontSize, Color fill, Color outline) :
+Button::Button(Vector2f position, float width, float height, std::string text1, std::string text2, Font& font, int fontSize, Color fill, Color outline) :
 	button(Vector2f(width, height)),
-	label(text, font, fontSize),
-	isClicked(false),
-	CallBack(CallBack)
+	text1(text1),
+	text2(text2),
+	label(text1, font, fontSize)
 {
 	button.setPosition(position);
 	button.setOrigin(button.getLocalBounds().left + button.getLocalBounds().width / 2.0f, button.getLocalBounds().top + button.getLocalBounds().height / 2.0f);
@@ -12,27 +12,15 @@ Button::Button(Vector2f position, float width, float height, void (*CallBack)(),
 	button.setOutlineThickness(5);
 	button.setOutlineColor(outline);
 
-	if (!font.loadFromFile("Fonts\\Neon.ttf"))
-		std::cout << "Error loading font\n";
-
 	label.setFillColor(Color::Black);
-	SetText(text);
+	label.setString(text1);
+	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
+	label.setPosition(button.getPosition());
 }
 
-void Button::Update(int mouseX, int mouseY)
+void Button::ButtonPressed()
 {
-	if (Mouse::isButtonPressed(Mouse::Button::Left))
-	{
-		if (button.getGlobalBounds().contains(mouseX, mouseY) && isClicked == false)
-			CallBack();
-		isClicked = true;
-	}
-	else isClicked = false;
-}
-
-void Button::SetText(std::string text)
-{
-	label.setString(text);
+	label.setString(label.getString() == text1 ? text2 : text1);
 	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
 	label.setPosition(button.getPosition());
 }

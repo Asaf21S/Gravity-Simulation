@@ -34,3 +34,5 @@ Adding support for the acceleration arrow as well, and adjusting the arrow dimen
 Didn't make any more progress due to illness.  
 
 ### <ins>20.3 - 26.3:</ins> (? hours total)
+Encapsulating the menu items in a Menu class in preperation for adding planet-specific menu, coming up with the solution on how the Menu class can communicate with the PlanetSystem class on menu item's event and implementing it - about 4 hours and 30 minutes  
+Changing the menu items' classes to work more efficiently with the Menu class - about 3 hours.  
