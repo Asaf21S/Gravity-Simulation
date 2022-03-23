@@ -5,7 +5,7 @@ Simulate gravitational forces between planetary objects.
 [Week 1](#272---53-6-hours-total)  
 [Week 2](#63---123-10-hours-and-30-minutes-total)  
 [Week 3](#133---193-5-hours-total)  
-[Week 4](#203---263--hours-total)  
+[Week 4](#203---263-12-hours-total)  
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
@@ -33,6 +33,9 @@ What I got so far:
 Adding support for the acceleration arrow as well, and adjusting the arrow dimensions to look good at any size - about 2 hours.  
 Didn't make any more progress due to illness.  
 
-### <ins>20.3 - 26.3:</ins> (? hours total)
+### <ins>20.3 - 26.3:</ins> (12 hours total)
 Encapsulating the menu items in a Menu class in preperation for adding planet-specific menu, coming up with the solution on how the Menu class can communicate with the PlanetSystem class on menu item's event and implementing it - about 4 hours and 30 minutes  
 Changing the menu items' classes to work more efficiently with the Menu class - about 3 hours.  
+Creating another menu to edit planet attributes - about 4 hours and 30 minutes.  
+Demonstration of the second menu:  
+<img src="Media/23-3-planetsMenu.gif" width="576" height="324" />  

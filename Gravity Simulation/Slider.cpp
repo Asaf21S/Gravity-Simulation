@@ -6,7 +6,8 @@ Slider::Slider(Vector2f position, float minValue, float maxValue, float initialV
 	slider(12),
 	minValue(minValue),
 	maxValue(maxValue),
-	modify(false)
+	modify(false),
+	showFloatingPoint(maxValue - minValue < 10)
 {
 	axis.setOrigin(axis.getLocalBounds().left + axis.getLocalBounds().width / 2.0f, axis.getLocalBounds().top + axis.getLocalBounds().height / 2.0f);
 	axis.setPosition(position);
@@ -99,7 +100,8 @@ void Slider::draw(RenderTarget& target, RenderStates states) const
 	target.draw(axis);
 	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20));
 	target.draw(slider);
-	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), std::to_string((int)sliderValue), 15));
+	std::string val = showFloatingPoint ? std::to_string(sliderValue).substr(0, std::to_string(sliderValue).find(".") + 3) : std::to_string((int)sliderValue);
+	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), val, 15));
 }
 
 bool Slider::contains(Vector2f point)

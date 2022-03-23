@@ -21,13 +21,22 @@ void PlanetSystem::MouseClicked(Vector2f mousePos)
             currentMaxR = 500;
             for (int i = 0; i < planets.size() - 1; i++)
             {
-                dist = Dist(planets[i].GetPosition(), mousePos) - planets[i].GetRadius();
+                dist = Planet::Dist(planets[i].GetPosition(), mousePos) - planets[i].GetRadius();
                 if (dist < currentMaxR) currentMaxR = dist;
             }
             if (planets.back().GetRadius() >= currentMaxR) RemovePlanet();
-            else expandPlanet = true;
+            else
+            {
+                expandPlanet = true;
+                if (showAcc) planets.back().SetArrowVisibility(false);
+            }
         }
     }
+}
+
+int PlanetSystem::GetAmount()
+{
+    return planets.size();
 }
 
 void PlanetSystem::Expand(int index)
@@ -74,11 +83,6 @@ bool PlanetSystem::TrackMouse()
     return setVelocityInd != -1;
 }
 
-float PlanetSystem::Dist(Vector2f p1, Vector2f p2)
-{
-    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
-}
-
 void PlanetSystem::RemovePlanet(int index)
 {
     if (index == -1) index += planets.size();
@@ -123,7 +127,6 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
         {
             setVelocityInd = (index + planets.size()) % planets.size();
             if (showVel) planets[setVelocityInd].SetArrowVisibility(true);
-            if (showAcc) planets[setVelocityInd].SetArrowVisibility(false);
         }
     }
 }
@@ -131,6 +134,62 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
 void PlanetSystem::SetGConst(float value)
 {
     GravitationalConst = value / 1e4;
+}
+
+const Planet& PlanetSystem::Editing(int index)
+{
+    CheckIndex(index);
+    for (int i = 0; i < planets.size(); i++)
+    {
+        planets[i].planet.setOutlineThickness(0);
+        if (i == index) planets[i].planet.setOutlineThickness(5);
+    }
+    return planets[index];
+}
+
+void PlanetSystem::RemoveOutlines()
+{
+    for (int i = 0; i < planets.size(); i++)
+    {
+        planets[i].planet.setOutlineThickness(0);
+    }
+}
+
+void PlanetSystem::SetPlanetRadius(int index, float radius)
+{
+    CheckIndex(index);
+    planets[index].SetRadius(radius);
+}
+
+void PlanetSystem::SetPlanetDensity(int index, float density)
+{
+    CheckIndex(index);
+    planets[index].density = density;
+}
+
+void PlanetSystem::SetPlanetVelDir(int index, float dir)
+{
+    CheckIndex(index);
+    float mag = planets[index].GetVelMagnitude();
+    dir = 360 - dir;
+    dir *= M_PI / 180.0f;
+    planets[index].SetVelocity(Vector2f(mag * cos(dir), mag * sin(dir)));
+}
+
+void PlanetSystem::SetPlanetVelMag(int index, float mag)
+{
+    CheckIndex(index);
+    if (mag == 0) mag = 0.001;
+    planets[index].velocity *= mag / planets[index].GetVelMagnitude();
+}
+
+void PlanetSystem::CheckIndex(int index)
+{
+    if (index >= planets.size() || index < 0)
+    {
+        std::string msg = "Error: can't find the planet. Requested index: " + std::to_string(index) + ".";
+        throw std::range_error(msg);
+    }
 }
 
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const

@@ -13,6 +13,7 @@ Planet::Planet(Vector2f position) :
     accTooSmall(true)
 {
     planet.setPosition(position);
+    planet.setOutlineColor(Color::Blue);
     UpdateMass();
 
     velArrow[0].color = Color(153, 0, 0);
@@ -28,7 +29,7 @@ void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
 {
     Vector2f center = GetPosition();
     float radius = planet.getRadius();
-    float distance = sqrt(pow(arrowPoint.x - center.x, 2) + pow(arrowPoint.y - center.y, 2));
+    float distance = Dist(arrowPoint, center);
     float lineLength = distance - (radius + ARROW_OFFSET);
     if (lineLength < 12.0f)
     {
@@ -40,7 +41,7 @@ void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
     else accTooSmall = false;
 
     Vector2f normal = Vector2f(arrowPoint.y - center.y, center.x - arrowPoint.x);
-    float len = sqrt(pow(normal.x, 2) + pow(normal.y, 2));
+    float len = Dist(normal);
     normal /= len;
 
     Vector2f circleEdge = Vector2f(lineLength * center.x + (radius + ARROW_OFFSET) * arrowPoint.x, lineLength * center.y + (radius + ARROW_OFFSET) * arrowPoint.y);
@@ -106,7 +107,8 @@ void Planet::UpdateArrow(bool isVel)
     Vector2f arrow;
     if (isVel) arrow = velocity * ARROW_LENGTH_TO_VELOCITY;
     else arrow = acceleration * ARROW_LENGTH_TO_ACCELERATION;
-    float length = sqrt(pow(arrow.x, 2) + pow(arrow.y, 2));
+    float length = Dist(arrow);
+    //if (length = 0) SetArrow(GetPosition() + (arrow / length * distance), isVel);
     float distance = length + planet.getRadius() + ARROW_OFFSET;
     SetArrow(GetPosition() + (arrow / length * distance), isVel);
 }
@@ -135,9 +137,34 @@ Vector2f Planet::GetPosition()
     return Vector2f(planet.getPosition().x + planet.getRadius(), planet.getPosition().y + planet.getRadius());
 }
 
-float Planet::GetRadius()
+void Planet::SetRadius(float radius)
+{
+    planet.move(Vector2f(planet.getRadius() - radius, planet.getRadius() - radius));
+    planet.setRadius(radius);
+    UpdateMass();
+}
+
+float Planet::GetRadius() const
 {
     return planet.getRadius();
+}
+
+float Planet::GetDensity() const
+{
+    return density;
+}
+
+float Planet::GetVelDirection() const
+{
+    float degree = atan2(velocity.y, velocity.x) * 180 / M_PI;
+    if (degree < 0) degree += 360;
+    degree = 360 - degree;
+    return degree;
+}
+
+float Planet::GetVelMagnitude() const
+{
+    return Dist(velocity);
 }
 
 float Planet::GetMass()
@@ -189,4 +216,9 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
     // draw the acceleration arrow
     if (showAccArrow && !accTooSmall)
         target.draw(accArrow, states);
+}
+
+float Planet::Dist(Vector2f p1, Vector2f p2)
+{
+    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
 }

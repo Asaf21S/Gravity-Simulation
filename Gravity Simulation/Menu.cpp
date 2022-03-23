@@ -1,13 +1,23 @@
-#include "Menu.h"
+﻿#include "Menu.h"
 
 Menu::Menu(Font& font) :
 	btnCollapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, "<", ">", font, 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200)),
-	slConstG(Vector2f(MENU_WIDTH / 2, 150), 0, 100, 50, font),
-	cbVel(250, "Show Planet's Velocity", font, true),
-	cbAcc(350, "Show Planet's Acceleration", font, false),
-	btnState(Vector2f(MENU_WIDTH / 2, 450), 100, 50, "Start", "Pause", font, 32, Color::White, Color::Magenta),
+	btnSwitchMenu(Vector2f(MENU_WIDTH / 2, 120), 300, 40, "Edit Planets", "Back to Main Menu", font, 32, Color::Cyan, Color::White),
 	isCollapsed(false),
-	showMenuItems(true)
+	showMenuItems(true),
+	planetIndex(-1),
+	currentSlider(none),
+	slConstG(Vector2f(MENU_WIDTH / 2, 250), 0, 100, 50, font),
+	cbVel(350, "Show Planet's Velocity", font, true),
+	cbAcc(450, "Show Planet's Acceleration", font, false),
+	btnState(Vector2f(MENU_WIDTH / 2, 550), 100, 50, "Start", "Pause", font, 32, Color::White, Color::Magenta),
+	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 200), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
+	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 200), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
+	slPlanetSize(Vector2f(MENU_WIDTH / 2, 280), 10, 500, 10, font),
+	slPlanetDensity(Vector2f(MENU_WIDTH / 2, 400), 0.5, 6, 1, font),
+	slPlanetVelDirection(Vector2f(MENU_WIDTH / 2, 480), 0, 360, 0, font),
+	slPlanetVelMagnitude(Vector2f(MENU_WIDTH / 2, 560), 0, 5, 0, font),
+	btnPlanetDelete(Vector2f(MENU_WIDTH / 2, 650), 250, 50, "Remove Planet", "Remove Planet", font, 32, Color::White, Color::Red)
 {
 	menuBackground.setFillColor(Color(32, 32, 32, 200));
 	menuBackground.setOutlineColor(Color(128, 128, 128, 200));
@@ -50,45 +60,156 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			btnCollapseMenu.move(40.0f, 0);
 		}
 	}
-	else if (!showMenuItems)
+	else if (showMenuItems) // if menu isn't collapsed
 	{
-		// if the following items are hidden, don't continue to check if we clicked on them
-	}
-	else if (slConstG.contains(mousePos))
-	{
-		slConstG.SetModify(true);
-	}
-	else if (btnState.contains(mousePos))
-	{
-		btnState.ButtonPressed();
-		sys.SetState();
-	}
-	else if (cbVel.contains(mousePos))
-	{
-		cbVel.Clicked();
-		sys.SetVelVisibility();
-	}
-	else if (cbAcc.contains(mousePos))
-	{
-		cbAcc.Clicked();
-		sys.SetAccVisibility();
+		if (btnSwitchMenu.contains(mousePos) && sys.GetAmount() > 0)
+		{
+			SwitchMenus(sys);
+		}
+		else if (planetIndex == -1) // Main menu items:
+		{
+			if (slConstG.contains(mousePos))
+			{
+				slConstG.SetModify(true);
+				currentSlider = constG;
+			}
+			else if (cbVel.contains(mousePos))
+			{
+				cbVel.Clicked();
+				sys.SetVelVisibility();
+			}
+			else if (cbAcc.contains(mousePos))
+			{
+				cbAcc.Clicked();
+				sys.SetAccVisibility();
+			}
+			else if (btnState.contains(mousePos))
+			{
+				btnState.ButtonPressed();
+				sys.SetState();
+			}
+		}
+		else // planet menu items:
+		{
+			if (btnPreviousPlanet.contains(mousePos))
+			{
+				planetIndex = (planetIndex - 1 + sys.GetAmount()) % sys.GetAmount();
+				EditPlanet(sys.Editing(planetIndex));
+			}
+			else if (btnNextPlanet.contains(mousePos))
+			{
+				planetIndex = (planetIndex + 1 + sys.GetAmount()) % sys.GetAmount();
+				EditPlanet(sys.Editing(planetIndex));
+			}
+			else if (slPlanetSize.contains(mousePos))
+			{
+				slPlanetSize.SetModify(true);
+				currentSlider = pSize;
+			}
+			else if (slPlanetDensity.contains(mousePos))
+			{
+				slPlanetDensity.SetModify(true);
+				currentSlider = pDensity;
+			}
+			else if (slPlanetVelDirection.contains(mousePos))
+			{
+				slPlanetVelDirection.SetModify(true);
+				currentSlider = pVelDir;
+			}
+			else if (slPlanetVelMagnitude.contains(mousePos))
+			{
+				slPlanetVelMagnitude.SetModify(true);
+				currentSlider = pVelMag;
+			}
+			else if (btnPlanetDelete.contains(mousePos))
+			{
+				sys.RemovePlanet(planetIndex);
+				SwitchMenus(sys);
+			}
+		}
 	}
 }
 
 void Menu::MouseReleased()
 {
-	slConstG.SetModify(false);
+	switch (currentSlider)
+	{
+	case constG:
+		slConstG.SetModify(false);
+		break;
+	case pSize:
+		slPlanetSize.SetModify(false);
+		break;
+	case pDensity:
+		slPlanetDensity.SetModify(false);
+		break;
+	case pVelDir:
+		slPlanetVelDirection.SetModify(false);
+		break;
+	case pVelMag:
+		slPlanetVelMagnitude.SetModify(false);
+		break;
+	default:
+		break;
+	}
+	currentSlider = none;
+}
+
+void Menu::SwitchMenus(PlanetSystem& sys)
+{
+	btnSwitchMenu.ButtonPressed();
+	if (planetIndex == -1)
+	{
+		planetIndex = 0;
+		EditPlanet(sys.Editing(planetIndex));
+	}
+	else
+	{
+		planetIndex = -1;
+		sys.RemoveOutlines();
+	}
+}
+
+void Menu::EditPlanet(const Planet& p) // fill values of menu items with current planet
+{
+	slPlanetSize.SetValue(p.GetRadius());
+	slPlanetDensity.SetValue(p.GetDensity());
+	slPlanetVelDirection.SetValue(p.GetVelDirection());
+	slPlanetVelMagnitude.SetValue(p.GetVelMagnitude());
 }
 
 void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 {
-	slConstG.Update(mouseX);
-	sys.SetGConst(slConstG.GetValue());
+	switch (currentSlider)
+	{
+	case constG:
+		slConstG.Update(mouseX);
+		sys.SetGConst(slConstG.GetValue());
+		break;
+	case pSize:
+		slPlanetSize.Update(mouseX);
+		sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue());
+		break;
+	case pDensity:
+		slPlanetDensity.Update(mouseX);
+		sys.SetPlanetDensity(planetIndex, slPlanetDensity.GetValue());
+		break;
+	case pVelDir:
+		slPlanetVelDirection.Update(mouseX);
+		sys.SetPlanetVelDir(planetIndex, slPlanetVelDirection.GetValue());
+		break;
+	case pVelMag:
+		slPlanetVelMagnitude.Update(mouseX);
+		sys.SetPlanetVelMag(planetIndex, slPlanetVelMagnitude.GetValue());
+		break;
+	default:
+		break;
+	}
 }
 
 bool Menu::TrackMouse()
 {
-	return slConstG.GetModify();
+	return currentSlider != none;
 }
 
 bool Menu::MenuIsCollapsed()
@@ -139,9 +260,23 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 	if (showMenuItems)
 	{
 		target.draw(menuTitle, states);
-		target.draw(slConstG, states);
-		target.draw(btnState, states);
-		target.draw(cbVel, states);
-		target.draw(cbAcc, states);
+		target.draw(btnSwitchMenu, states);
+		if (planetIndex == -1)
+		{
+			target.draw(slConstG, states);
+			target.draw(btnState, states);
+			target.draw(cbVel, states);
+			target.draw(cbAcc, states);
+		}
+		else
+		{
+			target.draw(btnPreviousPlanet, states);
+			target.draw(btnNextPlanet, states);
+			target.draw(slPlanetSize, states);
+			target.draw(slPlanetDensity, states);
+			target.draw(slPlanetVelDirection, states);
+			target.draw(slPlanetVelMagnitude, states);
+			target.draw(btnPlanetDelete, states);
+		}
 	}
 }

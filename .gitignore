@@ -338,6 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-Gravity Simulation/Gravity Simulation.vcxproj
-Gravity Simulation/Gravity Simulation.vcxproj
-Gravity Simulation/Gravity Simulation.vcxproj.filters
+*.vcxproj
+*.filters

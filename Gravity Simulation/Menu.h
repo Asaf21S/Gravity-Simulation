@@ -11,19 +11,39 @@ using namespace sf;
 const float MENU_WIDTH = 400.0f; // can't be less than 40
 const float COLLAPSE_MENU_WIDTH = 60.0f;
 
+enum MenuSlider
+{
+	none, constG, pSize, pDensity, pVelDir, pVelMag
+};
+
 class Menu : public Drawable, public Transformable
 {
 	RectangleShape menuBackground;
-	Font font;
-	Text menuTitle;
 	Button btnCollapseMenu;
+	Text menuTitle;
+	Button btnSwitchMenu;
+	Font font;
+	bool isCollapsed, showMenuItems;
+	int planetIndex;
+	MenuSlider currentSlider;
+
+	// Main menu items
 	Slider slConstG;
 	CheckBox cbVel;
 	CheckBox cbAcc;
 	Button btnState;
 
-	bool isCollapsed, showMenuItems;
+	// Edit planet menu items
+	Button btnPreviousPlanet;
+	Button btnNextPlanet;
+	Slider slPlanetSize;
+	Slider slPlanetDensity;
+	Slider slPlanetVelDirection;
+	Slider slPlanetVelMagnitude;
+	Button btnPlanetDelete;
 
+	void SwitchMenus(PlanetSystem& sys);
+	void EditPlanet(const Planet& p);
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
@@ -36,5 +56,4 @@ public:
 	bool MenuIsCollapsed();
 	void CollapseMenu();
 	void UpdateSlider(float mouseX, PlanetSystem& sys);
-	void Bind(void (*CallBack)(float));
 };

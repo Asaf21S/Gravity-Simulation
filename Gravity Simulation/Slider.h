@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <iostream>
+#include <format>
 using namespace sf;
 
 class Slider : public Drawable, public Transformable
@@ -11,7 +12,7 @@ class Slider : public Drawable, public Transformable
 	int minValue;
 	int maxValue;
 	float sliderValue;
-	bool modify;
+	bool modify, showFloatingPoint;
 	Text GetText(float x, float y, std::string z, int fontSize) const;
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 

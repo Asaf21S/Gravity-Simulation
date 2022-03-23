@@ -18,14 +18,15 @@ class PlanetSystem : public Drawable, public Transformable
     int setVelocityInd;
     float currentMaxR;
 
+    void CheckIndex(int index);
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
     PlanetSystem();
     void MouseClicked(Vector2f mousePos);
+    int GetAmount();
     void Expand(int index = -1);
     void Update(Time elapsed);
-    static float Dist(Vector2f p1, Vector2f p2);
     void RemovePlanet(int index = -1);
     bool GetState(); // maybe we dont even need it
     void SetState();
@@ -35,4 +36,10 @@ public:
     void UpdateArrow(Vector2f mousePos);
     void StopExpanding(bool isRemoved, int index = -1);
     void SetGConst(float value);
+    const Planet& Editing(int index);
+    void RemoveOutlines();
+    void SetPlanetRadius(int index, float radius);
+    void SetPlanetDensity(int index, float density);
+    void SetPlanetVelDir(int index, float dir);
+    void SetPlanetVelMag(int index, float mag);
 };

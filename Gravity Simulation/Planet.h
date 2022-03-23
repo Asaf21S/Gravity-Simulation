@@ -6,7 +6,7 @@
 using namespace sf;
 
 const float ARROW_LENGTH_TO_VELOCITY = 140;
-const float ARROW_LENGTH_TO_ACCELERATION = 3000;
+const float ARROW_LENGTH_TO_ACCELERATION = 2000;
 const float ARROW_OFFSET = 5;
 
 class Planet : public Drawable, public Transformable
@@ -14,7 +14,7 @@ class Planet : public Drawable, public Transformable
     friend class PlanetSystem;
 
     CircleShape planet;
-    float density;
+    float density; // in g/cm^3
     float mass;
     Vector2f velocity;
     VertexArray velArrow;
@@ -32,7 +32,7 @@ class Planet : public Drawable, public Transformable
     void SetArrowVisibility(bool isVel);
     void Expand();
     Vector2f GetPosition();
-    float GetRadius();
+    void SetRadius(float radius);
     float GetMass();
     void AddForce(Vector2f force);
     void Update(Time elapsed, bool isPaused);
@@ -41,4 +41,9 @@ class Planet : public Drawable, public Transformable
 
 public:
     Planet(Vector2f position);
+    float GetRadius() const;
+    float GetDensity() const;
+    float GetVelDirection() const;
+    float GetVelMagnitude() const;
+    static float Dist(Vector2f p1, Vector2f p2 = Vector2f(0.0f, 0.0f));
 };
