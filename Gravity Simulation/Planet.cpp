@@ -108,9 +108,11 @@ void Planet::UpdateArrow(bool isVel)
     if (isVel) arrow = velocity * ARROW_LENGTH_TO_VELOCITY;
     else arrow = acceleration * ARROW_LENGTH_TO_ACCELERATION;
     float length = Dist(arrow);
-    //if (length = 0) SetArrow(GetPosition() + (arrow / length * distance), isVel);
-    float distance = length + planet.getRadius() + ARROW_OFFSET;
-    SetArrow(GetPosition() + (arrow / length * distance), isVel);
+    if (length != 0)
+    {
+        float distance = length + planet.getRadius() + ARROW_OFFSET;
+        SetArrow(GetPosition() + (arrow / length * distance), isVel);
+    }
 }
 
 void Planet::SetVelocity(Vector2f vel)
@@ -179,13 +181,13 @@ void Planet::AddForce(Vector2f force)
 
 void Planet::Update(sf::Time elapsed, bool isPaused)
 {
-    // acceleration is currently the sum of all forces, so according to the equation - F=ma, we need to divide by the mass of the planet
+    // acceleration is currently the sum of all forces, so according to the equation "F=ma", we need to divide by the mass of the planet
     acceleration /= mass;
     if (!isPaused)
     {
         lifeTime += elapsed;
-        planet.move(velocity);
         velocity += acceleration;
+        planet.move(velocity);
     }
     if (showVelArrow) UpdateArrow(true);
     if (showAccArrow) UpdateArrow(false);

@@ -8,16 +8,21 @@
 #include "PlanetSystem.h"
 using namespace sf;
 
+class Slider;
+class Button;
+class CheckBox;
+
 const float MENU_WIDTH = 400.0f; // can't be less than 40
 const float COLLAPSE_MENU_WIDTH = 60.0f;
 
-enum MenuSlider
+enum class MenuSlider
 {
 	none, constG, pSize, pDensity, pVelDir, pVelMag
 };
 
 class Menu : public Drawable, public Transformable
 {
+	Time lifeTime;
 	RectangleShape menuBackground;
 	Button btnCollapseMenu;
 	Text menuTitle;
@@ -31,7 +36,9 @@ class Menu : public Drawable, public Transformable
 	Slider slConstG;
 	CheckBox cbVel;
 	CheckBox cbAcc;
+	Button btnClear;
 	Button btnState;
+	Text stats;
 
 	// Edit planet menu items
 	Button btnPreviousPlanet;
@@ -42,7 +49,6 @@ class Menu : public Drawable, public Transformable
 	Slider slPlanetVelMagnitude;
 	Button btnPlanetDelete;
 
-	void SwitchMenus(PlanetSystem& sys);
 	void EditPlanet(const Planet& p);
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
@@ -52,8 +58,10 @@ public:
 	bool IsClickInside(Vector2f mouse);
 	void MouseClicked(Vector2f mousePos, PlanetSystem& sys);
 	void MouseReleased();
+	void SwitchMenus(PlanetSystem& sys, int pInd = -1);
 	bool TrackMouse();
 	bool MenuIsCollapsed();
 	void CollapseMenu();
 	void UpdateSlider(float mouseX, PlanetSystem& sys);
+	void UpdateStats(Time elapsed, int amount);
 };

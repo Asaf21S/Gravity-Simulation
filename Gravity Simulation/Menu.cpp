@@ -6,18 +6,19 @@ Menu::Menu(Font& font) :
 	isCollapsed(false),
 	showMenuItems(true),
 	planetIndex(-1),
-	currentSlider(none),
-	slConstG(Vector2f(MENU_WIDTH / 2, 250), 0, 100, 50, font),
-	cbVel(350, "Show Planet's Velocity", font, true),
-	cbAcc(450, "Show Planet's Acceleration", font, false),
-	btnState(Vector2f(MENU_WIDTH / 2, 550), 100, 50, "Start", "Pause", font, 32, Color::White, Color::Magenta),
+	currentSlider(MenuSlider::none),
+	slConstG(Vector2f(MENU_WIDTH / 2, 240), 0, 100, 50, "Gravitational Constant", font),
+	cbVel(340, "Show Planet's Velocity", font, true),
+	cbAcc(400, "Show Planet's Acceleration", font, false),
+	btnClear(Vector2f(MENU_WIDTH / 2, 480), 240, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
+	btnState(Vector2f(MENU_WIDTH / 2, 580), 100, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
 	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 200), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
 	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 200), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
-	slPlanetSize(Vector2f(MENU_WIDTH / 2, 280), 10, 500, 10, font),
-	slPlanetDensity(Vector2f(MENU_WIDTH / 2, 400), 0.5, 6, 1, font),
-	slPlanetVelDirection(Vector2f(MENU_WIDTH / 2, 480), 0, 360, 0, font),
-	slPlanetVelMagnitude(Vector2f(MENU_WIDTH / 2, 560), 0, 5, 0, font),
-	btnPlanetDelete(Vector2f(MENU_WIDTH / 2, 650), 250, 50, "Remove Planet", "Remove Planet", font, 32, Color::White, Color::Red)
+	slPlanetSize(Vector2f(MENU_WIDTH / 2, 320), 10, 500, 10, "Planet Size", font),
+	slPlanetDensity(Vector2f(MENU_WIDTH / 2, 420), 0.5, 6, 1, "Planet Density", font),
+	slPlanetVelDirection(Vector2f(MENU_WIDTH / 2, 560), 0, 360, 0, "Velocity Direction", font),
+	slPlanetVelMagnitude(Vector2f(MENU_WIDTH / 2, 660), 0, 5, 0, "Velocity Magnitude", font),
+	btnPlanetDelete(Vector2f(MENU_WIDTH / 2, 780), 250, 50, "Remove Planet", "Remove Planet", font, 28, Color::White, Color::Red)
 {
 	menuBackground.setFillColor(Color(32, 32, 32, 200));
 	menuBackground.setOutlineColor(Color(128, 128, 128, 200));
@@ -29,6 +30,11 @@ Menu::Menu(Font& font) :
 	menuTitle.setStyle(Text::Style::Underlined);
 	menuTitle.setOrigin(menuTitle.getLocalBounds().left + menuTitle.getLocalBounds().width / 2.0f, menuTitle.getLocalBounds().top + menuTitle.getLocalBounds().height / 2.0f);
 	menuTitle.setPosition(MENU_WIDTH / 2, 15 + menuTitle.getLocalBounds().height / 2.0f);
+
+	stats.setFont(font);
+	stats.setString("Amount of planets: 0\nYears passed: 0");
+	stats.setCharacterSize(28);
+	stats.setOrigin(stats.getLocalBounds().left + stats.getLocalBounds().width / 2.0f, stats.getLocalBounds().top + stats.getLocalBounds().height / 2.0f);
 }
 
 void Menu::Init(PlanetSystem& sys, int height)
@@ -36,6 +42,7 @@ void Menu::Init(PlanetSystem& sys, int height)
 	if (cbVel.IsChecked()) sys.SetVelVisibility();
 	if (cbAcc.IsChecked()) sys.SetAccVisibility();
 	menuBackground.setSize(Vector2f(MENU_WIDTH, height));
+	stats.setPosition(MENU_WIDTH / 2, height - 200);
 }
 
 bool Menu::IsClickInside(Vector2f mouse)
@@ -71,7 +78,7 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			if (slConstG.contains(mousePos))
 			{
 				slConstG.SetModify(true);
-				currentSlider = constG;
+				currentSlider = MenuSlider::constG;
 			}
 			else if (cbVel.contains(mousePos))
 			{
@@ -82,6 +89,10 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			{
 				cbAcc.Clicked();
 				sys.SetAccVisibility();
+			}
+			else if (btnClear.contains(mousePos))
+			{
+				sys.ClearEverything();
 			}
 			else if (btnState.contains(mousePos))
 			{
@@ -104,22 +115,22 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			else if (slPlanetSize.contains(mousePos))
 			{
 				slPlanetSize.SetModify(true);
-				currentSlider = pSize;
+				currentSlider = MenuSlider::pSize;
 			}
 			else if (slPlanetDensity.contains(mousePos))
 			{
 				slPlanetDensity.SetModify(true);
-				currentSlider = pDensity;
+				currentSlider = MenuSlider::pDensity;
 			}
 			else if (slPlanetVelDirection.contains(mousePos))
 			{
 				slPlanetVelDirection.SetModify(true);
-				currentSlider = pVelDir;
+				currentSlider = MenuSlider::pVelDir;
 			}
 			else if (slPlanetVelMagnitude.contains(mousePos))
 			{
 				slPlanetVelMagnitude.SetModify(true);
-				currentSlider = pVelMag;
+				currentSlider = MenuSlider::pVelMag;
 			}
 			else if (btnPlanetDelete.contains(mousePos))
 			{
@@ -134,39 +145,49 @@ void Menu::MouseReleased()
 {
 	switch (currentSlider)
 	{
-	case constG:
+	case MenuSlider::constG:
 		slConstG.SetModify(false);
 		break;
-	case pSize:
+	case MenuSlider::pSize:
 		slPlanetSize.SetModify(false);
 		break;
-	case pDensity:
+	case MenuSlider::pDensity:
 		slPlanetDensity.SetModify(false);
 		break;
-	case pVelDir:
+	case MenuSlider::pVelDir:
 		slPlanetVelDirection.SetModify(false);
 		break;
-	case pVelMag:
+	case MenuSlider::pVelMag:
 		slPlanetVelMagnitude.SetModify(false);
 		break;
 	default:
 		break;
 	}
-	currentSlider = none;
+	currentSlider = MenuSlider::none;
 }
 
-void Menu::SwitchMenus(PlanetSystem& sys)
+void Menu::SwitchMenus(PlanetSystem& sys, int pInd)
 {
-	btnSwitchMenu.ButtonPressed();
 	if (planetIndex == -1)
 	{
-		planetIndex = 0;
+		btnSwitchMenu.ButtonPressed();
+		if (pInd == -1) planetIndex = 0; // button is clicked
+		else planetIndex = pInd; // planet is clicked
 		EditPlanet(sys.Editing(planetIndex));
 	}
 	else
 	{
-		planetIndex = -1;
-		sys.RemoveOutlines();
+		if (pInd == -1)
+		{
+			btnSwitchMenu.ButtonPressed();
+			planetIndex = -1;
+			sys.RemoveOutlines();
+		}
+		else
+		{
+			planetIndex = pInd; // planet is clicked
+			EditPlanet(sys.Editing(planetIndex));
+		}
 	}
 }
 
@@ -182,23 +203,23 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 {
 	switch (currentSlider)
 	{
-	case constG:
+	case MenuSlider::constG:
 		slConstG.Update(mouseX);
 		sys.SetGConst(slConstG.GetValue());
 		break;
-	case pSize:
+	case MenuSlider::pSize:
 		slPlanetSize.Update(mouseX);
 		sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue());
 		break;
-	case pDensity:
+	case MenuSlider::pDensity:
 		slPlanetDensity.Update(mouseX);
 		sys.SetPlanetDensity(planetIndex, slPlanetDensity.GetValue());
 		break;
-	case pVelDir:
+	case MenuSlider::pVelDir:
 		slPlanetVelDirection.Update(mouseX);
 		sys.SetPlanetVelDir(planetIndex, slPlanetVelDirection.GetValue());
 		break;
-	case pVelMag:
+	case MenuSlider::pVelMag:
 		slPlanetVelMagnitude.Update(mouseX);
 		sys.SetPlanetVelMag(planetIndex, slPlanetVelMagnitude.GetValue());
 		break;
@@ -207,9 +228,16 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 	}
 }
 
+void Menu::UpdateStats(Time elapsed, int amount)
+{
+	lifeTime += elapsed;
+	std::string s = "Amount of planets: " + std::to_string(amount) + "\nYears passed : " + std::to_string(int(lifeTime.asSeconds()));
+	stats.setString(s);
+}
+
 bool Menu::TrackMouse()
 {
-	return currentSlider != none;
+	return currentSlider != MenuSlider::none;
 }
 
 bool Menu::MenuIsCollapsed()
@@ -264,9 +292,11 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 		if (planetIndex == -1)
 		{
 			target.draw(slConstG, states);
-			target.draw(btnState, states);
 			target.draw(cbVel, states);
 			target.draw(cbAcc, states);
+			target.draw(btnClear, states);
+			target.draw(btnState, states);
+			target.draw(stats, states);
 		}
 		else
 		{

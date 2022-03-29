@@ -1,7 +1,8 @@
 #include "Slider.h"
 
-Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, Font& font) :
+Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, std::string label, Font& font) :
 	axis(Vector2f(200, 10)),
+	label(label),
 	font(font),
 	slider(12),
 	minValue(minValue),
@@ -96,12 +97,13 @@ void Slider::SetPercentValue(float newPercentValue)
 void Slider::draw(RenderTarget& target, RenderStates states) const
 {
 	states.texture = NULL;
-	target.draw(GetText(axis.getGlobalBounds().left, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(minValue), 20));
-	target.draw(axis);
-	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20));
-	target.draw(slider);
+	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x / 2, axis.getPosition().y - 4.5 * axis.getLocalBounds().height, label, 24), states);
+	target.draw(GetText(axis.getGlobalBounds().left, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(minValue), 20), states);
+	target.draw(axis, states);
+	target.draw(GetText(axis.getGlobalBounds().left + axis.getSize().x, axis.getPosition().y + 2 * axis.getLocalBounds().height, std::to_string(maxValue), 20), states);
+	target.draw(slider, states);
 	std::string val = showFloatingPoint ? std::to_string(sliderValue).substr(0, std::to_string(sliderValue).find(".") + 3) : std::to_string((int)sliderValue);
-	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), val, 15));
+	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), val, 15), states);
 }
 
 bool Slider::contains(Vector2f point)

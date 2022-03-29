@@ -2,20 +2,39 @@
 
 PlanetSystem::PlanetSystem() :
     GravitationalConst(1e-2),
+    showVel(false),
+    showAcc(false),
     isPaused(true),
     showTrail(false),
     expandPlanet(false),
     setVelocityInd(-1),
     currentMaxR(500)
-{}
-
-void PlanetSystem::MouseClicked(Vector2f mousePos)
 {
-    if (isPaused)
+    srand(time(0));
+}
+
+void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
+{
+    if (setVelocityInd != -1)
     {
-        if (setVelocityInd != -1) setVelocityInd = -1;
-        else
+        if (!showVel) planets[setVelocityInd].SetArrowVisibility(true);
+        setVelocityInd = -1;
+    }
+    else
+    {
+        bool inPlanet = false;
+        for (int i = 0; i < planets.size(); i++)
         {
+            if (Planet::Dist(planets[i].GetPosition(), mousePos) <= planets[i].GetRadius())
+            {
+                menu.SwitchMenus(*this, i);
+                inPlanet = true;
+                break;
+            }
+        }
+        if (isPaused && !inPlanet)
+        {
+            // adding new planet
             planets.push_back(Planet(mousePos));
             float dist;
             currentMaxR = 500;
@@ -30,6 +49,7 @@ void PlanetSystem::MouseClicked(Vector2f mousePos)
                 expandPlanet = true;
                 if (showAcc) planets.back().SetArrowVisibility(false);
             }
+
         }
     }
 }
@@ -50,6 +70,7 @@ void PlanetSystem::Update(Time elapsed)
 {
     if (expandPlanet) Expand();
     float len, mag;
+    std::vector<Planet> newPlanets;
     for (int i = 0; i < planets.size(); i++)
     {
         planets[i].acceleration.x = 0;
@@ -60,22 +81,77 @@ void PlanetSystem::Update(Time elapsed)
             {
                 Vector2f force = planets[j].GetPosition() - planets[i].GetPosition();
                 len = hypot(force.x, force.y);
-                force.x /= len;
-                force.y /= len;
+                force /= len;
                 mag = GravitationalConst * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
-                force.x *= mag;
-                force.y *= mag;
+                force *= mag;
                 planets[i].AddForce(force);
             }
         }
         // need to call planets[i].SetArrowVisibility before calling planets[i].Update
         planets[i].Update(elapsed, isPaused);
+
+        // check for collisions:
+        for (int j = 0; j < i; j++)
+        {
+            Vector2f pos1 = planets[i].GetPosition(), pos2 = planets[j].GetPosition();
+            float r1 = planets[i].GetRadius(), r2 = planets[j].GetRadius();
+            if (Planet::Dist(pos1, pos2) <= r1 + r2)
+            {
+                if (r1 > 40)
+                {
+                    int amount = 3 + (rand() % 3);
+                    for (int p = 0; p < amount; p++)
+                    {
+                        float phi = rand() % 360;
+                        phi *= M_PI / 180;
+                        Planet pl(pos1 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r1))));
+                        pl.SetRadius(10 + (rand() % int(r1 / 2 - 9)));
+                        Vector2f plVel = pl.GetPosition() - pos1;
+                        plVel /= Planet::Dist(plVel);
+                        pl.SetVelocity(plVel / float(30 + rand() % 5));
+                        newPlanets.push_back(pl);
+                    }
+                }
+                if (r2 > 40)
+                {
+                    int amount = 3 + (rand() % 3);
+                    for (int p = 0; p < amount; p++)
+                    {
+                        float phi = rand() % 360;
+                        phi *= M_PI / 180;
+                        Planet pl(pos2 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r2))));
+                        pl.SetRadius(10 + (rand() % int(r2 / 2 - 9)));
+                        Vector2f plVel = pl.GetPosition() - pos2;
+                        plVel /= Planet::Dist(plVel);
+                        pl.SetVelocity(plVel / float(5 + rand() % 5));
+                        newPlanets.push_back(pl);
+                    }
+                }
+                planets.erase(planets.begin() + i);
+                planets.erase(planets.begin() + j);
+                break;
+            }
+        }
+    }
+    if (newPlanets.size() > 0)
+    {
+        // add new planets to the system
+        for(int i = 0; i < newPlanets.size(); i++)
+        {
+            if (showAcc) newPlanets[i].SetArrowVisibility(false);
+            if (showVel) newPlanets[i].SetArrowVisibility(true);
+        }
+            
+        planets.insert(planets.end(), newPlanets.begin(), newPlanets.end());
     }
 }
 
 void PlanetSystem::UpdateArrow(Vector2f mousePos)
 {
-    planets[setVelocityInd].SetArrow(mousePos, true);
+    if (Planet::Dist(mousePos, planets[setVelocityInd].GetPosition()) < planets[setVelocityInd].GetRadius())
+        planets[setVelocityInd].SetVelocity(Vector2f(0.0f, 0.0f));
+    else
+        planets[setVelocityInd].SetArrow(mousePos, true);
 }
 
 bool PlanetSystem::TrackMouse()
@@ -88,6 +164,15 @@ void PlanetSystem::RemovePlanet(int index)
     if (index == -1) index += planets.size();
     planets.erase(planets.begin() + index);
     StopExpanding(true);
+}
+
+void PlanetSystem::ClearEverything()
+{
+    for (int i = planets.size() - 1; i >= 0; i--)
+    {
+        planets.erase(planets.begin() + i);
+    }
+    setVelocityInd = -1;
 }
 
 bool PlanetSystem::GetState()
@@ -126,14 +211,14 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
         if (!isRemoved)
         {
             setVelocityInd = (index + planets.size()) % planets.size();
-            if (showVel) planets[setVelocityInd].SetArrowVisibility(true);
+            planets[setVelocityInd].SetArrowVisibility(true);
         }
     }
 }
 
 void PlanetSystem::SetGConst(float value)
 {
-    GravitationalConst = value / 1e4;
+    GravitationalConst = value / 1e5;
 }
 
 const Planet& PlanetSystem::Editing(int index)

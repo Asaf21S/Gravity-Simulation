@@ -5,7 +5,10 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Planet.h"
+#include "Menu.h"
 using namespace sf;
+
+class Menu;
 
 class PlanetSystem : public Drawable, public Transformable
 {
@@ -23,11 +26,12 @@ class PlanetSystem : public Drawable, public Transformable
 
 public:
     PlanetSystem();
-    void MouseClicked(Vector2f mousePos);
+    void MouseClicked(Vector2f mousePos, Menu& menu);
     int GetAmount();
     void Expand(int index = -1);
     void Update(Time elapsed);
     void RemovePlanet(int index = -1);
+    void ClearEverything();
     bool GetState(); // maybe we dont even need it
     void SetState();
     void SetVelVisibility();

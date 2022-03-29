@@ -88,7 +88,7 @@ int main()
                 if (menu.IsClickInside(Vector2f(Mouse::getPosition(window))))
                     menu.MouseClicked(Vector2f(Mouse::getPosition(window)), planetSystem);
                 else
-                    planetSystem.MouseClicked(Vector2f(Mouse::getPosition(window)));
+                    planetSystem.MouseClicked(Vector2f(Mouse::getPosition(window)), menu);
             }
             isClicked = true;
         }
@@ -107,6 +107,7 @@ int main()
         if (planetSystem.TrackMouse()) planetSystem.UpdateArrow(Vector2f(Mouse::getPosition(window)));
         if (menu.TrackMouse()) menu.UpdateSlider(float(Mouse::getPosition(window).x), planetSystem);
         if (menu.MenuIsCollapsed()) menu.CollapseMenu();
+        menu.UpdateStats(elapsed, planetSystem.GetAmount());
 
         window.draw(planetSystem);
         window.draw(menu);

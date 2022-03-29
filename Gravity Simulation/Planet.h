@@ -5,8 +5,8 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 
-const float ARROW_LENGTH_TO_VELOCITY = 140;
-const float ARROW_LENGTH_TO_ACCELERATION = 2000;
+const float ARROW_LENGTH_TO_VELOCITY = 100;
+const float ARROW_LENGTH_TO_ACCELERATION = 1000;
 const float ARROW_OFFSET = 5;
 
 class Planet : public Drawable, public Transformable
@@ -14,7 +14,7 @@ class Planet : public Drawable, public Transformable
     friend class PlanetSystem;
 
     CircleShape planet;
-    float density; // in g/cm^3
+    float density; // in g/cm^3    { https://www.google.com/search?q=density+of+a+planet&oq=density+of+a+planet&aqs=chrome..69i57.7577j0j7&sourceid=chrome&ie=UTF-8 }
     float mass;
     Vector2f velocity;
     VertexArray velArrow;

@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <iostream>
-#include "PlanetSystem.h"
 using namespace sf;
 
 class Button : public Drawable, public Transformable
