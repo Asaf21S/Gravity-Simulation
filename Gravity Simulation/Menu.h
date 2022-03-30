@@ -55,7 +55,7 @@ class Menu : public Drawable, public Transformable
 public:
 	Menu(Font& font);
 	void Init(PlanetSystem& sys, int height);
-	bool IsClickInside(Vector2f mouse);
+	bool IsClickInside(Vector2f mousePos);
 	void MouseClicked(Vector2f mousePos, PlanetSystem& sys);
 	void MouseReleased();
 	void SwitchMenus(PlanetSystem& sys, int pInd = -1);

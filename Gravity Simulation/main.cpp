@@ -4,7 +4,6 @@
 #include "Planet.h"
 #include "Menu.h"
 
-//using namespace std;
 using namespace sf;
 
 int main()

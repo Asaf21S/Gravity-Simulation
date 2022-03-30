@@ -1,5 +1,8 @@
 #include "PlanetSystem.h"
 
+/**
+    PlanetSystem constructor.
+*/
 PlanetSystem::PlanetSystem() :
     GravitationalConst(1e-2),
     showVel(false),
@@ -13,11 +16,16 @@ PlanetSystem::PlanetSystem() :
     srand(time(0));
 }
 
+/**
+    Called when the mouse is clicked on the simulation.
+    @param mousePos - the position of the mouse.
+    @param menu - the menu object that will display the edit menu if the click was inside a planet.
+*/
 void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
 {
     if (setVelocityInd != -1)
     {
-        if (!showVel) planets[setVelocityInd].SetArrowVisibility(true);
+        if (!showVel) planets[setVelocityInd].ToggleArrowVisibility(true);
         setVelocityInd = -1;
     }
     else
@@ -47,25 +55,26 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
             else
             {
                 expandPlanet = true;
-                if (showAcc) planets.back().SetArrowVisibility(false);
+                if (showAcc) planets.back().ToggleArrowVisibility(false);
             }
 
         }
     }
 }
 
+/**
+    Get the amount of planets.
+*/
 int PlanetSystem::GetAmount()
 {
     return planets.size();
 }
 
-void PlanetSystem::Expand(int index)
-{
-    if (index == -1) index += planets.size();
-    planets[index].Expand();
-    if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
-}
-
+/**
+    Update the simulation on a new frame. 
+    The function computes the gravitational forces between the planets, and check for collisions.
+    @param elapsed - the time passed since the last call.
+*/
 void PlanetSystem::Update(Time elapsed)
 {
     if (expandPlanet) Expand();
@@ -135,17 +144,22 @@ void PlanetSystem::Update(Time elapsed)
     }
     if (newPlanets.size() > 0)
     {
-        // add new planets to the system
+        // show the planets arrows if needed
         for(int i = 0; i < newPlanets.size(); i++)
         {
-            if (showAcc) newPlanets[i].SetArrowVisibility(false);
-            if (showVel) newPlanets[i].SetArrowVisibility(true);
+            if (showAcc) newPlanets[i].ToggleArrowVisibility(false);
+            if (showVel) newPlanets[i].ToggleArrowVisibility(true);
         }
-            
+        
+        // add new planets to the system
         planets.insert(planets.end(), newPlanets.begin(), newPlanets.end());
     }
 }
 
+/**
+    Update the velocity arrow to point the mouse position.
+    @param mousePos - the position of the mouse.
+*/
 void PlanetSystem::UpdateArrow(Vector2f mousePos)
 {
     if (Planet::Dist(mousePos, planets[setVelocityInd].GetPosition()) < planets[setVelocityInd].GetRadius())
@@ -154,11 +168,19 @@ void PlanetSystem::UpdateArrow(Vector2f mousePos)
         planets[setVelocityInd].SetArrow(mousePos, true);
 }
 
+/**
+    Check whether there is a need to track the mouse position.
+    @return true if there is, or false otherwise.
+*/
 bool PlanetSystem::TrackMouse()
 {
     return setVelocityInd != -1;
 }
 
+/**
+    Remove a specific planet from the simulation.
+    @param index - the index of the planet to be removed.
+*/
 void PlanetSystem::RemovePlanet(int index)
 {
     if (index == -1) index += planets.size();
@@ -166,6 +188,9 @@ void PlanetSystem::RemovePlanet(int index)
     StopExpanding(true);
 }
 
+/**
+    Remove every planet from the simulation.
+*/
 void PlanetSystem::ClearEverything()
 {
     for (int i = planets.size() - 1; i >= 0; i--)
@@ -175,34 +200,52 @@ void PlanetSystem::ClearEverything()
     setVelocityInd = -1;
 }
 
+/**
+    Toggle the state of the simulation - whether it's on pause or running.
+*/
+void PlanetSystem::ToggleState()
+{
+    isPaused = !isPaused;
+}
+
+/**
+    Get the current state of the simulation
+    @return true if it's paused, or false if it's running.
+*/
 bool PlanetSystem::GetState()
 {
     return isPaused;
 }
 
-void PlanetSystem::SetState()
+/**
+    Toggle the velocity or acceleration arrow visibility for every planet.
+    @param isVel - for velocity (true), for acceleration (false).
+*/
+void PlanetSystem::ToggleArrowVisibility(bool isVel)
 {
-    isPaused = !isPaused;
-}
-
-void PlanetSystem::SetVelVisibility()
-{
-    showVel = !showVel;
+    if (isVel) showVel = !showVel;
+    else showAcc = !showAcc;
     for (int i = 0; i < planets.size(); i++)
     {
-        planets[i].SetArrowVisibility(true);
+        planets[i].ToggleArrowVisibility(isVel);
     }
 }
 
-void PlanetSystem::SetAccVisibility()
+/**
+    Increase the radius of a specific planet.
+    @param index - the index of the planet to be expanded.
+*/
+void PlanetSystem::Expand(int index)
 {
-    showAcc = !showAcc;
-    for (int i = 0; i < planets.size(); i++)
-    {
-        planets[i].SetArrowVisibility(false);
-    }
+    if (index == -1) index += planets.size();
+    planets[index].Expand();
+    if (planets[index].GetRadius() >= currentMaxR) RemovePlanet(index);
 }
 
+/**
+    @param isRemoved - whether to stop because the planet is removed or not.
+    @param index - the index of the planet that should stop expanding.
+*/
 void PlanetSystem::StopExpanding(bool isRemoved, int index)
 {
     if (expandPlanet)
@@ -211,16 +254,24 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
         if (!isRemoved)
         {
             setVelocityInd = (index + planets.size()) % planets.size();
-            planets[setVelocityInd].SetArrowVisibility(true);
+            planets[setVelocityInd].ToggleArrowVisibility(true);
         }
     }
 }
 
+/**
+    Set the gravitational constant.
+*/
 void PlanetSystem::SetGConst(float value)
 {
     GravitationalConst = value / 1e5;
 }
 
+/**
+    Update the outline of a specific planet.
+    @param index - the index of the planet that is being edited.
+    @return the planet that is being edited.
+*/
 const Planet& PlanetSystem::Editing(int index)
 {
     CheckIndex(index);
@@ -232,6 +283,9 @@ const Planet& PlanetSystem::Editing(int index)
     return planets[index];
 }
 
+/**
+    Remove the outline from every planet.
+*/
 void PlanetSystem::RemoveOutlines()
 {
     for (int i = 0; i < planets.size(); i++)
@@ -240,18 +294,33 @@ void PlanetSystem::RemoveOutlines()
     }
 }
 
+/**
+    Set the radius of a specific planet.
+    @param index - the index of the planet to change the radius to.
+    @param radius - the value which the radius will be set to.
+*/
 void PlanetSystem::SetPlanetRadius(int index, float radius)
 {
     CheckIndex(index);
     planets[index].SetRadius(radius);
 }
 
+/**
+    Set the density of a specific planet.
+    @param index - the index of the planet to change the density to.
+    @param density - the value which the density will be set to.
+*/
 void PlanetSystem::SetPlanetDensity(int index, float density)
 {
     CheckIndex(index);
     planets[index].density = density;
 }
 
+/**
+    Set the velocity direction of a specific planet.
+    @param index - the index of the planet to change the velocity direction to.
+    @param dir - the direction which the velocity will be set to in degrees.
+*/
 void PlanetSystem::SetPlanetVelDir(int index, float dir)
 {
     CheckIndex(index);
@@ -261,6 +330,11 @@ void PlanetSystem::SetPlanetVelDir(int index, float dir)
     planets[index].SetVelocity(Vector2f(mag * cos(dir), mag * sin(dir)));
 }
 
+/**
+    Set the velocity magnitude of a specific planet.
+    @param index - the index of the planet to change the velocity magnitude to.
+    @param mag - the magnitude which the velocity will be set to.
+*/
 void PlanetSystem::SetPlanetVelMag(int index, float mag)
 {
     CheckIndex(index);
@@ -268,6 +342,10 @@ void PlanetSystem::SetPlanetVelMag(int index, float mag)
     planets[index].velocity *= mag / planets[index].GetVelMagnitude();
 }
 
+/**
+    Helper function that check whether an index is valid. If invalid, the function throws range_error exception.
+    @param index - the index to check for.
+*/
 void PlanetSystem::CheckIndex(int index)
 {
     if (index >= planets.size() || index < 0)
@@ -277,6 +355,9 @@ void PlanetSystem::CheckIndex(int index)
     }
 }
 
+/**
+    Drawing every planet.
+*/
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const
 {
     states.texture = NULL;

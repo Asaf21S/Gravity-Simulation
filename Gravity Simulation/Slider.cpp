@@ -1,5 +1,14 @@
 #include "Slider.h"
 
+/**
+	Slider constructor.
+	@param position - the position of the center of the slider.
+	@param minValue - the minimum value of the slider.
+	@param maxValue - the maximum value of the slider.
+	@param initialValue - the initial value of the slider.
+	@param label - the text to display above the slider.
+	@param font - the font family of the text.
+*/
 Slider::Slider(Vector2f position, float minValue, float maxValue, float initialValue, std::string label, Font& font) :
 	axis(Vector2f(200, 10)),
 	label(label),
@@ -23,6 +32,14 @@ Slider::Slider(Vector2f position, float minValue, float maxValue, float initialV
 	SetValue(initialValue);
 }
 
+/**
+	Creating an sf::Text object.
+	@param x - the x component of the text position.
+	@param y - the y component of the text position.
+	@param z - the text to display.
+	@param fontSize - the size of the text.
+	@return the Text object.
+*/
 Text Slider::GetText(float x, float y, std::string z, int fontSize) const
 {
 	Text t(z, font, fontSize);
@@ -32,16 +49,30 @@ Text Slider::GetText(float x, float y, std::string z, int fontSize) const
 	return t;
 }
 
+/**
+	When modify is true, the slider is moving according to the mouse position.
+	@param mod - the value which modify will be set to.
+*/
 void Slider::SetModify(bool mod)
 {
 	modify = mod;
 }
 
+/**
+	When modify is true, the slider is moving according to the mouse position.
+	@return modify.
+*/
 bool Slider::GetModify()
 {
 	return modify;
 }
 
+/**
+	Updating the slider position according to the mouse position. 
+	If the mouse position is to the left of the slider, the value will be set to the minimum value. 
+	And if the it's to the right of the slider, value will be set to the maximum value.
+	@param mouseX - the x component of the mouse position.
+*/
 void Slider::Update(float mouseX)
 {
 	if (mouseX < axis.getGlobalBounds().left)
@@ -61,11 +92,21 @@ void Slider::Update(float mouseX)
 	}
 }
 
+/**
+	Get the current value of the slider.
+	@return sliderValue.
+*/
 float Slider::GetValue()
 {
 	return sliderValue;
 }
 
+/**
+	Set the value of the slider. 
+	If the mouse position is to the left of the slider, the value will be set to the minimum value. 
+	And if the it's to the right of the slider, value will be set to the maximum value.
+	@param newValue - the value which the slider will be set to.
+*/
 void Slider::SetValue(float newValue)
 {
 	if (newValue < minValue)
@@ -85,6 +126,10 @@ void Slider::SetValue(float newValue)
 	}
 }
 
+/**
+	Set the value of the slider in percentage.
+	@param newPercentValue - the percentage which the slider will be set to.
+*/
 void Slider::SetPercentValue(float newPercentValue)
 {
 	if (newPercentValue >= 0 && newPercentValue <= 100)
@@ -94,6 +139,9 @@ void Slider::SetPercentValue(float newPercentValue)
 	}
 }
 
+/**
+	Drawing the slider.
+*/
 void Slider::draw(RenderTarget& target, RenderStates states) const
 {
 	states.texture = NULL;
@@ -106,7 +154,12 @@ void Slider::draw(RenderTarget& target, RenderStates states) const
 	target.draw(GetText(slider.getPosition().x, slider.getPosition().y - 2 * slider.getRadius(), val, 15), states);
 }
 
+/**
+	Check if a point is inside the circle of the slider.
+	@param point - the point to check for.
+	@return true if the point is inside the circle of the slider or false otherwise.
+*/
 bool Slider::contains(Vector2f point)
 {
-	return slider.getGlobalBounds().contains(point);
+	return std::hypotf(slider.getPosition().x - point.x, slider.getPosition().y - point.y) <= slider.getRadius();
 }

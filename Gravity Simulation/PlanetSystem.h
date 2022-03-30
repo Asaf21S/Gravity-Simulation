@@ -33,9 +33,8 @@ public:
     void RemovePlanet(int index = -1);
     void ClearEverything();
     bool GetState(); // maybe we dont even need it
-    void SetState();
-    void SetVelVisibility();
-    void SetAccVisibility();
+    void ToggleState();
+    void ToggleArrowVisibility(bool isVel);
     bool TrackMouse();
     void UpdateArrow(Vector2f mousePos);
     void StopExpanding(bool isRemoved, int index = -1);

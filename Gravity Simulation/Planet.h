@@ -29,7 +29,7 @@ class Planet : public Drawable, public Transformable
     void SetArrow(Vector2f arrowPoint, bool isVel);
     void UpdateArrow(bool isVel);
     void SetVelocity(Vector2f vel);
-    void SetArrowVisibility(bool isVel);
+    void ToggleArrowVisibility(bool isVel);
     void Expand();
     Vector2f GetPosition();
     void SetRadius(float radius);

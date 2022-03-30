@@ -1,5 +1,9 @@
 ﻿#include "Menu.h"
 
+/**
+	Menu constructor.
+	@param font - the font family of the texts.
+*/
 Menu::Menu(Font& font) :
 	btnCollapseMenu(Vector2f(MENU_WIDTH + 6 + COLLAPSE_MENU_WIDTH / 2.0f + 5, COLLAPSE_MENU_WIDTH / 2.0f + 5), COLLAPSE_MENU_WIDTH, COLLAPSE_MENU_WIDTH, "<", ">", font, 64, Color(128, 128, 128, 200), Color(128, 128, 128, 200)),
 	btnSwitchMenu(Vector2f(MENU_WIDTH / 2, 120), 300, 40, "Edit Planets", "Back to Main Menu", font, 32, Color::Cyan, Color::White),
@@ -37,19 +41,33 @@ Menu::Menu(Font& font) :
 	stats.setOrigin(stats.getLocalBounds().left + stats.getLocalBounds().width / 2.0f, stats.getLocalBounds().top + stats.getLocalBounds().height / 2.0f);
 }
 
+/**
+	Initiate the menu after the window has been created.
+	@param sys - the planet system object to update the arrows visibility to.
+	@param height - the height of the window.
+*/
 void Menu::Init(PlanetSystem& sys, int height)
 {
-	if (cbVel.IsChecked()) sys.SetVelVisibility();
-	if (cbAcc.IsChecked()) sys.SetAccVisibility();
+	if (cbVel.IsChecked()) sys.ToggleArrowVisibility(true);
+	if (cbAcc.IsChecked()) sys.ToggleArrowVisibility(false);
 	menuBackground.setSize(Vector2f(MENU_WIDTH, height));
 	stats.setPosition(MENU_WIDTH / 2, height - 200);
 }
 
-bool Menu::IsClickInside(Vector2f mouse)
+/**
+	check whether the mouse position is inside the menu area.
+	@param mousePos - the position of the mouse.
+*/
+bool Menu::IsClickInside(Vector2f mousePos)
 {
-	return menuBackground.getGlobalBounds().contains(mouse) || btnCollapseMenu.contains(mouse);
+	return menuBackground.getGlobalBounds().contains(mousePos) || btnCollapseMenu.contains(mousePos);
 }
 
+/**
+	Called when the mouse is clicked on the menu. If it's inside any menu item, it will trigger its event.
+	@param mousePos - the position of the mouse.
+	@param sys - the planet system object to update on menu item's events.
+*/
 void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 {
 	if (btnCollapseMenu.contains(mousePos))
@@ -83,12 +101,12 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			else if (cbVel.contains(mousePos))
 			{
 				cbVel.Clicked();
-				sys.SetVelVisibility();
+				sys.ToggleArrowVisibility(true);
 			}
 			else if (cbAcc.contains(mousePos))
 			{
 				cbAcc.Clicked();
-				sys.SetAccVisibility();
+				sys.ToggleArrowVisibility(false);
 			}
 			else if (btnClear.contains(mousePos))
 			{
@@ -97,7 +115,7 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			else if (btnState.contains(mousePos))
 			{
 				btnState.ButtonPressed();
-				sys.SetState();
+				sys.ToggleState();
 			}
 		}
 		else // planet menu items:
@@ -141,6 +159,9 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 	}
 }
 
+/**
+	Called when the mouse is released.
+*/
 void Menu::MouseReleased()
 {
 	switch (currentSlider)
@@ -166,24 +187,29 @@ void Menu::MouseReleased()
 	currentSlider = MenuSlider::none;
 }
 
+/**
+	Switch between the main menu and the 'edit planet' menu.
+	@param sys - the planet system object to update the planets outline.
+	@param pInd - if pInd >= 0, edit the planet at index pInd. If pInd == -1, toggle between the main menu and editing the planet at index 0.
+*/
 void Menu::SwitchMenus(PlanetSystem& sys, int pInd)
 {
-	if (planetIndex == -1)
+	if (planetIndex == -1) // currently on the main menu
 	{
 		btnSwitchMenu.ButtonPressed();
 		if (pInd == -1) planetIndex = 0; // button is clicked
 		else planetIndex = pInd; // planet is clicked
 		EditPlanet(sys.Editing(planetIndex));
 	}
-	else
+	else // currently on the 'edit planet' menu
 	{
-		if (pInd == -1)
+		if (pInd == -1) // switch to the main menu
 		{
 			btnSwitchMenu.ButtonPressed();
 			planetIndex = -1;
 			sys.RemoveOutlines();
 		}
-		else
+		else // edit a different planet
 		{
 			planetIndex = pInd; // planet is clicked
 			EditPlanet(sys.Editing(planetIndex));
@@ -191,7 +217,11 @@ void Menu::SwitchMenus(PlanetSystem& sys, int pInd)
 	}
 }
 
-void Menu::EditPlanet(const Planet& p) // fill values of menu items with current planet
+/**
+	Fill the 'edit planet' menu items with the attributes of a specific planet.
+	@param p - the planet that is being edited.
+*/
+void Menu::EditPlanet(const Planet& p)
 {
 	slPlanetSize.SetValue(p.GetRadius());
 	slPlanetDensity.SetValue(p.GetDensity());
@@ -199,6 +229,11 @@ void Menu::EditPlanet(const Planet& p) // fill values of menu items with current
 	slPlanetVelMagnitude.SetValue(p.GetVelMagnitude());
 }
 
+/**
+	Update a slider in the menu.
+	@param mouseX - the mouse x position.
+	@param sys - the planet system object to trigger an event to.
+*/
 void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 {
 	switch (currentSlider)
@@ -228,6 +263,11 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 	}
 }
 
+/**
+	Update the information at the buttom of the menu.
+	@param elapsed - the time passed since the last call.
+	@param amount - the amount of planets currently in the simulation.
+*/
 void Menu::UpdateStats(Time elapsed, int amount)
 {
 	lifeTime += elapsed;
@@ -235,16 +275,27 @@ void Menu::UpdateStats(Time elapsed, int amount)
 	stats.setString(s);
 }
 
+/**
+	Check whether there is a need to track the mouse position.
+	@return true if there is, or false otherwise.
+*/
 bool Menu::TrackMouse()
 {
 	return currentSlider != MenuSlider::none;
 }
 
+/**
+	Check whether the menu is collapssing.
+	@return true if it does, or false otherwise.
+*/
 bool Menu::MenuIsCollapsed()
 {
 	return (isCollapsed && menuBackground.getSize().x > 0) || (!isCollapsed && menuBackground.getSize().x < MENU_WIDTH);
 }
 
+/**
+	Minimizing or maximizing the menu.
+*/
 void Menu::CollapseMenu()
 {
 	if (isCollapsed)
@@ -278,6 +329,9 @@ void Menu::CollapseMenu()
 	}
 }
 
+/**
+	Drawing every menu item.
+*/
 void Menu::draw(RenderTarget& target, RenderStates states) const
 {
 	states.texture = NULL;

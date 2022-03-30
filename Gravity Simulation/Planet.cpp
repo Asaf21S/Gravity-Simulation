@@ -1,5 +1,9 @@
 ﻿#include "Planet.h"
 
+/**
+    Planet constructor.
+    @param position - the position of the planet center.
+*/
 Planet::Planet(Vector2f position) :
     planet(0),
     density(1.f),
@@ -25,6 +29,11 @@ Planet::Planet(Vector2f position) :
     accArrow[4].color = Color(255, 255, 255);
 }
 
+/**
+    Update the velocity or acceleration arrow and vector for a given edge point.
+    @param arrowPoint - the position of the edge of the arrow.
+    @param isVel - whether to update velocity (true) or acceleration (false).
+*/
 void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
 {
     Vector2f center = GetPosition();
@@ -102,6 +111,10 @@ void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
     }
 }
 
+/**
+    Update the velocity or acceleration arrow for the current vector.
+    @param isVel - whether to update velocity (true) or acceleration (false).
+*/
 void Planet::UpdateArrow(bool isVel)
 {
     Vector2f arrow;
@@ -115,17 +128,28 @@ void Planet::UpdateArrow(bool isVel)
     }
 }
 
+/**
+    Set the velocity vector.
+    @param vel - the vector which the velocity will be set to.
+*/
 void Planet::SetVelocity(Vector2f vel)
 {
     velocity = vel;
 }
 
-void Planet::SetArrowVisibility(bool isVel)
+/**
+    Toggle the velocity or acceleration arrow visibility.
+    @param isVel - for velocity (true), for acceleration (false).
+*/
+void Planet::ToggleArrowVisibility(bool isVel)
 {
     if (isVel) showVelArrow = !showVelArrow;
     else showAccArrow = !showAccArrow;
 }
 
+/**
+    Increase the planet radius by factor = 1.
+*/
 void Planet::Expand()
 {
     float factor = 1;
@@ -134,11 +158,18 @@ void Planet::Expand()
     UpdateMass();
 }
 
+/**
+    Get the position of the center of the planet.
+*/
 Vector2f Planet::GetPosition()
 {
     return Vector2f(planet.getPosition().x + planet.getRadius(), planet.getPosition().y + planet.getRadius());
 }
 
+/**
+    Set the radius of the planet.
+    @param radius - the value which the radius will be set to.
+*/
 void Planet::SetRadius(float radius)
 {
     planet.move(Vector2f(planet.getRadius() - radius, planet.getRadius() - radius));
@@ -146,16 +177,29 @@ void Planet::SetRadius(float radius)
     UpdateMass();
 }
 
+/**
+    Get the radius of the planet.
+*/
 float Planet::GetRadius() const
 {
     return planet.getRadius();
 }
 
+/**
+    Get the density of the planet.
+*/
 float Planet::GetDensity() const
 {
     return density;
 }
 
+/**
+    Get the angle of the velocity vector in degrees while:
+     0   - east.
+     90  - north.
+     180 - west.
+     270 - south.
+*/
 float Planet::GetVelDirection() const
 {
     float degree = atan2(velocity.y, velocity.x) * 180 / M_PI;
@@ -164,21 +208,37 @@ float Planet::GetVelDirection() const
     return degree;
 }
 
+/**
+    Get the magnitude of the velocity vector, which is the vector length.
+*/
 float Planet::GetVelMagnitude() const
 {
     return Dist(velocity);
 }
 
+/**
+    Get the planet's mass.
+*/
 float Planet::GetMass()
 {
     return mass;
 }
 
+/**
+    Add a force to the planet's net force.
+    @param force - the force vector to be applied on the planet.
+*/
 void Planet::AddForce(Vector2f force)
 {
     acceleration += force;
 }
 
+/**
+    Update the planet on a new frame. 
+    The function updates the planet's life time, velocity, position and arrows.
+    @param elapsed - the time passed since the last call.
+    @param isPaused - whether the simulation is currently paused or not.
+*/
 void Planet::Update(sf::Time elapsed, bool isPaused)
 {
     // acceleration is currently the sum of all forces, so according to the equation "F=ma", we need to divide by the mass of the planet
@@ -193,13 +253,19 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
     if (showAccArrow) UpdateArrow(false);
 }
 
+/**
+    Update the planet's mass according to its density and radius, with the formulas:
+     mass = density * volume
+     volume = (4/3)πr^3
+*/
 void Planet::UpdateMass()
 {
-    // mass = density * volume
-    // volume = (4/3)πr^3
     mass = (density * 4.0 * M_PI * pow(planet.getRadius(), 3)) / 3.0;
 }
 
+/**
+    Drawing the planet, and the velocity and acceleration arrows.
+*/
 void Planet::draw(RenderTarget& target, RenderStates states) const
 {
     // apply the transform
@@ -220,7 +286,10 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
         target.draw(accArrow, states);
 }
 
+/**
+    Helper function that compute the distance between 2 points.
+*/
 float Planet::Dist(Vector2f p1, Vector2f p2)
 {
-    return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+    return std::hypotf(p1.x - p2.x, p1.y - p2.y);
 }
