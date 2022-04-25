@@ -107,19 +107,13 @@ void PlanetSystem::Update(Time elapsed)
                 break;
             }
         }
-        if (rand() % 100 == 0)
+        if (rand() % 40 == 0)
         {
-            std::cout << "Sparkle ";
             // choose random particle:
             int i = rand() % backgroundParticles.size();
-            std::cout << i <<  std::endl;
-
-            for (int j = 0; j < backgroundParticles.size(); j++)
-            {
-                backgroundParticles[j].isSparkling = true;
-            }
             backgroundParticles[i].isSparkling = true;
         }
+
         for (int i = 0; i < explosionParticles.size(); i++)
         {
             explosionParticles[i].Update();
@@ -163,7 +157,7 @@ void PlanetSystem::Update(Time elapsed)
         {
             Vector2f pos1 = planets[i].GetPosition(), pos2 = planets[j].GetPosition();
             float r1 = planets[i].GetRadius(), r2 = planets[j].GetRadius();
-            if (Planet::Dist(pos1, pos2) <= r1 + r2)
+            if (Planet::Dist(pos1, pos2) <= r1 + r2) // planets collide
             {
                 // add explosion particles
                 Vector2f normal = Vector2f(pos1.y - pos2.y, pos2.x - pos1.x);
@@ -171,20 +165,9 @@ void PlanetSystem::Update(Time elapsed)
                 particlePosition /= r1 + r2;
                 float minVelMag = planets[i].GetVelMagnitude() > planets[j].GetVelMagnitude() ? planets[i].GetVelMagnitude() : planets[j].GetVelMagnitude();
                 int maxVelMag = 3 * minVelMag > 10 ? 3 * minVelMag : 10;
+
                 int particleAmount = 5 + (rand() % 6);
-                for (int p = 0; p < particleAmount; p++)
-                {
-                    float radius = 3 + (rand() % 3);
-                    float degree = atan2(normal.y, normal.x) * 180 / M_PI;
-                    degree += (rand() % 21) - 10;
-                    degree *= M_PI / 180.0f;
-                    float mag = minVelMag + (rand() % maxVelMag);
-                    Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
-                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
-                }
-                particleAmount = 5 + (rand() % 6);
-                normal = -normal;
-                for (int p = 0; p < particleAmount; p++)
+                for (int p = 0; p < particleAmount; p++) // add explosion particles to one side
                 {
                     float radius = 3 + (rand() % 3);
                     float degree = atan2(normal.y, normal.x) * 180 / M_PI;
@@ -195,52 +178,92 @@ void PlanetSystem::Update(Time elapsed)
                     explosionParticles.push_back(Particle(particlePosition, radius, vel));
                 }
 
-                if (r1 > 40 && r2 > 40)
+                particleAmount = 5 + (rand() % 6);
+                normal = -normal;
+                for (int p = 0; p < particleAmount; p++) // add explosion particles to the second side
                 {
+                    float radius = 3 + (rand() % 3);
+                    float degree = atan2(normal.y, normal.x) * 180 / M_PI;
+                    degree += (rand() % 21) - 10;
+                    degree *= M_PI / 180.0f;
+                    float mag = minVelMag + (rand() % maxVelMag);
+                    Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
+                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
+                }
+
+                if (r1 > 40 && r2 > 40) // both planets big enough
+                {
+                    bool planetOverriding;
+                    float phi;
+                    Planet pl(Vector2f(0.0f, 0.0f));
+                    Vector2f plVel(0.0f, 0.0f);
+
                     int amount = 3 + (rand() % 3);
-                    for (int p = 0; p < amount; p++)
+                    for (int p = 0; p < amount; p++) // planet i explosion
                     {
-                        float phi = rand() % 360;
-                        phi *= M_PI / 180;
-                        Planet pl(pos1 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r1))));
-                        pl.SetRadius(10 + (rand() % int(r1 / 2 - 9)));
-                        Vector2f plVel = pl.GetPosition() - pos1;
+                        do
+                        {
+                            planetOverriding = false;
+                            phi = rand() % 360;
+                            phi *= M_PI / 180;
+                            pl.planet.setPosition(pos1 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r1))));
+                            pl.SetRadius(10 + (rand() % int(r1 / 2 - 9)));
+
+                            for (Planet newPlanet : newPlanets)
+                            {
+                                if (Planet::Dist(newPlanet.GetPosition(), pl.GetPosition()) <= newPlanet.GetRadius() + pl.GetRadius())
+                                    planetOverriding = true;
+                            }
+                        } while (planetOverriding);
+                        
+                        plVel = pl.GetPosition() - pos1;
                         plVel /= Planet::Dist(plVel);
                         pl.SetVelocity(plVel / float(30 + rand() % 5));
                         newPlanets.push_back(pl);
                     }
 
                     amount = 3 + (rand() % 3);
-                    for (int p = 0; p < amount; p++)
+                    for (int p = 0; p < amount; p++) // planet j explosion
                     {
-                        float phi = rand() % 360;
-                        phi *= M_PI / 180;
-                        Planet pl(pos2 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r2))));
-                        pl.SetRadius(10 + (rand() % int(r2 / 2 - 9)));
-                        Vector2f plVel = pl.GetPosition() - pos2;
+                        do
+                        {
+                            planetOverriding = false;
+                            phi = rand() % 360;
+                            phi *= M_PI / 180;
+                            pl.planet.setPosition(pos2 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r2))));
+                            pl.SetRadius(10 + (rand() % int(r2 / 2 - 9)));
+
+                            for (Planet newPlanet : newPlanets)
+                            {
+                                if (Planet::Dist(newPlanet.GetPosition(), pl.GetPosition()) <= newPlanet.GetRadius() + pl.GetRadius())
+                                    planetOverriding = true;
+                            }
+                        } while (planetOverriding);
+
+                        plVel = pl.GetPosition() - pos2;
                         plVel /= Planet::Dist(plVel);
-                        pl.SetVelocity(plVel / float(5 + rand() % 5));
+                        pl.SetVelocity(plVel / float(30 + rand() % 5));
                         newPlanets.push_back(pl);
                     }
 
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
                 }
-                else if (r1 > 40 && r2 <= 40)
+                else if (r1 > 40 && r2 <= 40) // planet i absorb planet j
                 {
                     SetPlanetRadius(i, std::cbrt(std::pow(r1, 3) + 64000));
                     SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + j);
                 }
-                else if (r2 > 40 && r1 <= 40)
+                else if (r2 > 40 && r1 <= 40) // planet j absorb planet i
                 {
                     SetPlanetRadius(j, std::cbrt(std::pow(r2, 3) + 64000));
                     SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + i);
                 }
-                else
+                else // both planets too small
                 {
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);

@@ -71,3 +71,4 @@ Adding more function descriptions and learning how to use textures in SFML - abo
 Adding sparkling effect to background stars - about 1 hour and 30 minutes.  
 a gif of every star with this effect:  
 <img src="Media/25-4-sparklingStars.gif" width="576" height="324" />  
+Fixing a bug that planets created from collision were created on top of other new planets - about 2 hour.  
