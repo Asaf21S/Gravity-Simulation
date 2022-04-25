@@ -68,4 +68,6 @@ Adjusting the particles' velocity with respect to the planet's velocity - about 
 Adding more function descriptions and learning how to use textures in SFML - about 1 hour and 30 minutes.  
 
 ### <ins>24.4 - 30.4:</ins> (? hours total)
-
+Adding sparkling effect to background stars - about 1 hour and 30 minutes.  
+a gif of every star with this effect:  
+<img src="Media/25-4-sparklingStars.gif" width="576" height="324" />  

@@ -96,7 +96,8 @@ void PlanetSystem::Update(Time elapsed)
     {
         for (int i = 0; i < backgroundParticles.size(); i++)
         {
-            backgroundParticles[i].Update(elapsed);
+            backgroundParticles[i].Update();
+            if (backgroundParticles[i].isSparkling) backgroundParticles[i].Sparkle(elapsed);
             if (backgroundParticles[i].particle.getPosition().x < -backgroundParticles[i].particle.getRadius() ||
                 backgroundParticles[i].particle.getPosition().x > windowSize.x + backgroundParticles[i].particle.getRadius() ||
                 backgroundParticles[i].particle.getPosition().y < -backgroundParticles[i].particle.getRadius() ||
@@ -106,9 +107,22 @@ void PlanetSystem::Update(Time elapsed)
                 break;
             }
         }
+        if (rand() % 100 == 0)
+        {
+            std::cout << "Sparkle ";
+            // choose random particle:
+            int i = rand() % backgroundParticles.size();
+            std::cout << i <<  std::endl;
+
+            for (int j = 0; j < backgroundParticles.size(); j++)
+            {
+                backgroundParticles[j].isSparkling = true;
+            }
+            backgroundParticles[i].isSparkling = true;
+        }
         for (int i = 0; i < explosionParticles.size(); i++)
         {
-            explosionParticles[i].Update(elapsed);
+            explosionParticles[i].Update();
             if (explosionParticles[i].particle.getPosition().x < -explosionParticles[i].particle.getRadius() ||
                 explosionParticles[i].particle.getPosition().x > windowSize.x + explosionParticles[i].particle.getRadius() ||
                 explosionParticles[i].particle.getPosition().y < -explosionParticles[i].particle.getRadius() ||

@@ -8,7 +8,9 @@
 */
 Particle::Particle(Vector2f position, float radius, Vector2f velocity) :
     particle(radius),
-    velocity(velocity)
+    velocity(velocity),
+    isSparkling(false),
+    firstHalf(true)
 {
     particle.setOrigin(Vector2f(particle.getRadius(), particle.getRadius()));
     particle.setPosition(position);
@@ -20,10 +22,24 @@ Particle::Particle(Vector2f position, float radius, Vector2f velocity) :
     The function updates the particle's life time and position.
     @param elapsed - the time passed since the last call.
 */
-void Particle::Update(sf::Time elapsed)
+void Particle::Update()
 {
-    lifeTime += elapsed;
     particle.move(velocity);
+}
+
+void Particle::Sparkle(Time elapsed)
+{
+    sparklingTime += elapsed;
+    if (sparklingTime.asSeconds() > 1)
+    {
+        sparklingTime = Time::Zero;
+        isSparkling = false;
+        firstHalf = true;
+    }
+    else if (sparklingTime.asSeconds() > 0.5)
+    {
+        firstHalf = false;
+    }
 }
 
 /**
@@ -36,6 +52,34 @@ void Particle::draw(RenderTarget& target, RenderStates states) const
 
     // our particle don't use a texture
     states.texture = NULL;
+
+    if (isSparkling)
+    {
+        VertexArray spark(PrimitiveType::TriangleFan, 10);
+        Vector2f center = particle.getPosition();
+        float rad = particle.getRadius() / sqrt(2);
+        float progress = firstHalf ? sparklingTime.asSeconds() : 1 - sparklingTime.asSeconds();
+        progress *= 20;
+
+        spark[0].position = center;
+        spark[1].position = center + Vector2f(progress, 0);
+        spark[2].position = center + Vector2f(rad, rad);
+        spark[3].position = center + Vector2f(0, progress);
+        spark[4].position = center + Vector2f(-rad, rad);
+        spark[5].position = center - Vector2f(progress, 0);
+        spark[6].position = center - Vector2f(rad, rad);
+        spark[7].position = center - Vector2f(0, progress);
+        spark[8].position = center - Vector2f(-rad, rad);
+        spark[9].position = spark[1].position;
+
+        spark[1].color = Color::Cyan;
+        spark[3].color = Color::Cyan;
+        spark[5].color = Color::Cyan;
+        spark[7].color = Color::Cyan;
+        spark[9].color = Color::Cyan;
+
+        target.draw(spark, states);
+    }
 
     // draw the particle
     target.draw(particle, states);
