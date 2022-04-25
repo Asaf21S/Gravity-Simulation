@@ -121,7 +121,8 @@ void Planet::UpdateArrow(bool isVel)
     if (isVel) arrow = velocity * ARROW_LENGTH_TO_VELOCITY;
     else arrow = acceleration * ARROW_LENGTH_TO_ACCELERATION;
     float length = Dist(arrow);
-    if (length != 0)
+    if (length == 0) SetArrow(GetPosition(), isVel);
+    else
     {
         float distance = length + planet.getRadius() + ARROW_OFFSET;
         SetArrow(GetPosition() + (arrow / length * distance), isVel);

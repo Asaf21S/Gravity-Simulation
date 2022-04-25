@@ -17,7 +17,7 @@ int main()
     if (!font.loadFromFile("Fonts\\Neon.ttf"))
         std::cout << "Error loading font\n";
     Menu menu(font);
-    PlanetSystem planetSystem;
+    PlanetSystem planetSystem(window.getSize());
     menu.Init(planetSystem, window.getSize().y);
 
     Clock clock;

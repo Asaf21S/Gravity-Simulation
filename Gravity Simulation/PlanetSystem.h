@@ -5,6 +5,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Planet.h"
+#include "Particle.h"
 #include "Menu.h"
 using namespace sf;
 
@@ -12,7 +13,10 @@ class Menu;
 
 class PlanetSystem : public Drawable, public Transformable
 {
+    Vector2u windowSize;
     std::vector<Planet> planets;
+    std::vector<Particle> backgroundParticles;
+    std::vector<Particle> explosionParticles;
     bool isPaused;
     float GravitationalConst;
     bool showVel, showAcc;
@@ -25,7 +29,7 @@ class PlanetSystem : public Drawable, public Transformable
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-    PlanetSystem();
+    PlanetSystem(Vector2u windowSize);
     void MouseClicked(Vector2f mousePos, Menu& menu);
     int GetAmount();
     void Expand(int index = -1);

@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 
-const float ARROW_LENGTH_TO_VELOCITY = 100;
+const float ARROW_LENGTH_TO_VELOCITY = 75;
 const float ARROW_LENGTH_TO_ACCELERATION = 1000;
 const float ARROW_OFFSET = 5;
 

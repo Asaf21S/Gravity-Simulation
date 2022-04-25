@@ -2,8 +2,10 @@
 
 /**
     PlanetSystem constructor.
+    @param windowSize - the size of the window.
 */
-PlanetSystem::PlanetSystem() :
+PlanetSystem::PlanetSystem(Vector2u windowSize) :
+    windowSize(windowSize),
     GravitationalConst(1e-2),
     showVel(false),
     showAcc(false),
@@ -14,6 +16,18 @@ PlanetSystem::PlanetSystem() :
     currentMaxR(500)
 {
     srand(time(0));
+
+    int particleAmount = 100 + (rand() % 21);
+    for (int p = 0; p < particleAmount; p++)
+    {
+        Vector2f pos = Vector2f(rand() % windowSize.x, rand() % windowSize.y);
+        float radius = 1 + (rand() % 4);
+        float degree = rand() % 360;
+        degree *= M_PI / 180.0f;
+        float mag = float(rand() % 80) / 1000.0;
+        Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
+        backgroundParticles.push_back(Particle(pos, radius, vel));
+    }
 }
 
 /**
@@ -77,11 +91,42 @@ int PlanetSystem::GetAmount()
 */
 void PlanetSystem::Update(Time elapsed)
 {
+    // update particles
+    if (!isPaused)
+    {
+        for (int i = 0; i < backgroundParticles.size(); i++)
+        {
+            backgroundParticles[i].Update(elapsed);
+            if (backgroundParticles[i].particle.getPosition().x < -backgroundParticles[i].particle.getRadius() ||
+                backgroundParticles[i].particle.getPosition().x > windowSize.x + backgroundParticles[i].particle.getRadius() ||
+                backgroundParticles[i].particle.getPosition().y < -backgroundParticles[i].particle.getRadius() ||
+                backgroundParticles[i].particle.getPosition().y > windowSize.y + backgroundParticles[i].particle.getRadius())
+            {
+                backgroundParticles.erase(backgroundParticles.begin() + i);
+                break;
+            }
+        }
+        for (int i = 0; i < explosionParticles.size(); i++)
+        {
+            explosionParticles[i].Update(elapsed);
+            if (explosionParticles[i].particle.getPosition().x < -explosionParticles[i].particle.getRadius() ||
+                explosionParticles[i].particle.getPosition().x > windowSize.x + explosionParticles[i].particle.getRadius() ||
+                explosionParticles[i].particle.getPosition().y < -explosionParticles[i].particle.getRadius() ||
+                explosionParticles[i].particle.getPosition().y > windowSize.y + explosionParticles[i].particle.getRadius())
+            {
+                explosionParticles.erase(explosionParticles.begin() + i);
+                break;
+            }
+        }
+    }
+
+    // update planets
     if (expandPlanet) Expand();
     float len, mag;
     std::vector<Planet> newPlanets;
     for (int i = 0; i < planets.size(); i++)
     {
+        // compute gravitational force
         planets[i].acceleration.x = 0;
         planets[i].acceleration.y = 0;
         for (int j = 0; j < planets.size(); j++)
@@ -106,7 +151,37 @@ void PlanetSystem::Update(Time elapsed)
             float r1 = planets[i].GetRadius(), r2 = planets[j].GetRadius();
             if (Planet::Dist(pos1, pos2) <= r1 + r2)
             {
-                if (r1 > 40)
+                // add explosion particles
+                Vector2f normal = Vector2f(pos1.y - pos2.y, pos2.x - pos1.x);
+                Vector2f particlePosition = pos1 * r2 + pos2 * r1;
+                particlePosition /= r1 + r2;
+                float minVelMag = planets[i].GetVelMagnitude() > planets[j].GetVelMagnitude() ? planets[i].GetVelMagnitude() : planets[j].GetVelMagnitude();
+                int maxVelMag = 3 * minVelMag > 10 ? 3 * minVelMag : 10;
+                int particleAmount = 5 + (rand() % 6);
+                for (int p = 0; p < particleAmount; p++)
+                {
+                    float radius = 3 + (rand() % 3);
+                    float degree = atan2(normal.y, normal.x) * 180 / M_PI;
+                    degree += (rand() % 21) - 10;
+                    degree *= M_PI / 180.0f;
+                    float mag = minVelMag + (rand() % maxVelMag);
+                    Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
+                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
+                }
+                particleAmount = 5 + (rand() % 6);
+                normal = -normal;
+                for (int p = 0; p < particleAmount; p++)
+                {
+                    float radius = 3 + (rand() % 3);
+                    float degree = atan2(normal.y, normal.x) * 180 / M_PI;
+                    degree += (rand() % 21) - 10;
+                    degree *= M_PI / 180.0f;
+                    float mag = minVelMag + (rand() % maxVelMag);
+                    Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
+                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
+                }
+
+                if (r1 > 40 && r2 > 40)
                 {
                     int amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++)
@@ -120,10 +195,8 @@ void PlanetSystem::Update(Time elapsed)
                         pl.SetVelocity(plVel / float(30 + rand() % 5));
                         newPlanets.push_back(pl);
                     }
-                }
-                if (r2 > 40)
-                {
-                    int amount = 3 + (rand() % 3);
+
+                    amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++)
                     {
                         float phi = rand() % 360;
@@ -135,9 +208,29 @@ void PlanetSystem::Update(Time elapsed)
                         pl.SetVelocity(plVel / float(5 + rand() % 5));
                         newPlanets.push_back(pl);
                     }
+
+                    planets.erase(planets.begin() + i);
+                    planets.erase(planets.begin() + j);
                 }
-                planets.erase(planets.begin() + i);
-                planets.erase(planets.begin() + j);
+                else if (r1 > 40 && r2 <= 40)
+                {
+                    SetPlanetRadius(i, std::cbrt(std::pow(r1, 3) + 64000));
+                    SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+
+                    planets.erase(planets.begin() + j);
+                }
+                else if (r2 > 40 && r1 <= 40)
+                {
+                    SetPlanetRadius(j, std::cbrt(std::pow(r2, 3) + 64000));
+                    SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+
+                    planets.erase(planets.begin() + i);
+                }
+                else
+                {
+                    planets.erase(planets.begin() + i);
+                    planets.erase(planets.begin() + j);
+                }
                 break;
             }
         }
@@ -193,6 +286,10 @@ void PlanetSystem::RemovePlanet(int index)
 */
 void PlanetSystem::ClearEverything()
 {
+    for (int i = explosionParticles.size() - 1; i >= 0; i--)
+    {
+        explosionParticles.erase(explosionParticles.begin() + i);
+    }
     for (int i = planets.size() - 1; i >= 0; i--)
     {
         planets.erase(planets.begin() + i);
@@ -264,7 +361,7 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
 */
 void PlanetSystem::SetGConst(float value)
 {
-    GravitationalConst = value / 1e5;
+    GravitationalConst = value / 5e4;
 }
 
 /**
@@ -356,11 +453,21 @@ void PlanetSystem::CheckIndex(int index)
 }
 
 /**
-    Drawing every planet.
+    Drawing every particle and planet.
 */
 void PlanetSystem::draw(RenderTarget& target, RenderStates states) const
 {
     states.texture = NULL;
+
+    // draw the particles
+    for (int i = 0; i < backgroundParticles.size(); i++)
+    {
+        target.draw(backgroundParticles[i], states);
+    }
+    for (int i = 0; i < explosionParticles.size(); i++)
+    {
+        target.draw(explosionParticles[i], states);
+    }
 
     // draw the planets
     for (int i = 0; i < planets.size(); i++)

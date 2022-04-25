@@ -7,6 +7,9 @@ Simulate gravitational forces between planetary objects.
 [Week 3](#133---193-5-hours-total)  
 [Week 4](#203---263-12-hours-total)  
 [Week 5](#273---24-8-hours-total)  
+[Week 6](#34---94-0-hours-total)  
+[Week 7](#104---164-5-hours-total)  
+[Week 8](#244---304--hours-total)  
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
@@ -50,4 +53,19 @@ Planets now explodes to several smaller planets on collision. The smaller planet
 Adding statistics on the buttom of the main menu - about 15 minutes.  
 Spent some time adding function descriptions and general comments - about 3 hours and 45 minutes.  
 
+### <ins>3.4 - 9.4:</ins> (0 hours total)
+Didn't make any progress due to personal things.  
+
+### <ins>10.4 - 16.4:</ins> (5 hours total)
+Compensate on last week's progress.  
+Bug fix - when the velocity or acceleration vector became 0, their arrow stayed the same as before, instead of disappearing - about 15 minutes.  
+On planets collision, if one of the planets is large and the other is small, the large planet will absorb the small planet - its radius and density will increase - about 45 minutes.  
+Added Particle class and explosion effect when 2 planets collide - about 1 hour and 30 minutes.  
+Explosion effect:  
+<img src="Media/10-4-explosionEffect.gif" width="576" height="324" />  
+Added many small particles in the background that represent far planets/suns - about 15 minutes.  
+Adjusting the particles' velocity with respect to the planet's velocity - about 15 minutes.  
+Adding more function descriptions and learning how to use textures in SFML - about 1 hour and 30 minutes.  
+
+### <ins>24.4 - 30.4:</ins> (? hours total)
 
