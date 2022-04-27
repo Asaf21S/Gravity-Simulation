@@ -28,6 +28,25 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
         Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
         backgroundParticles.push_back(Particle(pos, radius, vel));
     }
+
+    renderTexture.create(500, 500);
+
+    Image planet;
+    mercury.loadFromFile("Textures/mercury.jpg");
+    planet.loadFromFile("Textures/planet.jpg");
+    
+    sf::Texture texture;
+    texture.loadFromImage(planet);
+    sf::Sprite sprite;
+    sprite.setTexture(texture, true);
+
+    renderTexture.draw(sprite);
+
+    planetTexture.loadFromImage(mercury);
+
+    //planetTexture.create(mercury.getSize().x * 2, mercury.getSize().y);
+    //planetTexture.update
+
 }
 
 /**
@@ -71,7 +90,11 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
                 expandPlanet = true;
                 if (showAcc) planets.back().ToggleArrowVisibility(false);
             }
-
+            if (planets.size() == 1)
+            {
+                planets[0].planet.setTexture(&planetTexture);
+                xVal = 0;
+            }
         }
     }
 }
@@ -94,6 +117,13 @@ void PlanetSystem::Update(Time elapsed)
     // update particles
     if (!isPaused)
     {
+        if (planets.size() > 0)
+        {
+            xVal += 0.5;
+            if (xVal >= planetTexture.getSize().x / 1.5) xVal -= planetTexture.getSize().x / 1.5;
+            planets[0].planet.setTextureRect(IntRect(xVal, planetTexture.getSize().y / 2 - planets[0].GetRadius(), 2 * planets[0].GetRadius(), 2 * planets[0].GetRadius()));
+        }
+
         for (int i = 0; i < backgroundParticles.size(); i++)
         {
             backgroundParticles[i].Update();

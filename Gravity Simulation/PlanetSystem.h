@@ -25,6 +25,11 @@ class PlanetSystem : public Drawable, public Transformable
     int setVelocityInd;
     float currentMaxR;
 
+    Texture planetTexture;
+    float xVal;
+    sf::RenderTexture renderTexture;
+    Image mercury;
+
     void CheckIndex(int index);
     virtual void draw(RenderTarget& target, RenderStates states) const;
 

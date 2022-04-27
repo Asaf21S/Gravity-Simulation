@@ -9,7 +9,7 @@ Simulate gravitational forces between planetary objects.
 [Week 5](#273---24-8-hours-total)  
 [Week 6](#34---94-0-hours-total)  
 [Week 7](#104---164-5-hours-total)  
-[Week 8](#244---304--hours-total)  
+[Week 8](#244---304-12-hours-total)  
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
@@ -67,8 +67,14 @@ Added many small particles in the background that represent far planets/suns - a
 Adjusting the particles' velocity with respect to the planet's velocity - about 15 minutes.  
 Adding more function descriptions and learning how to use textures in SFML - about 1 hour and 30 minutes.  
 
-### <ins>24.4 - 30.4:</ins> (? hours total)
+### <ins>24.4 - 30.4:</ins> (12 hours total)
 Adding sparkling effect to background stars - about 1 hour and 30 minutes.  
 a gif of every star with this effect:  
 <img src="Media/25-4-sparklingStars.gif" width="576" height="324" />  
 Fixing a bug that planets created from collision were created on top of other new planets - about 2 hour.  
+Trying to add dynamic texture to the planets - about 8 hours and 30 minutes.  
+What I got so far:  
+<img src="Media/27-4-planetTexture.gif" width="576" height="324" />  
+Which is pretty good but it doesn't look natural so I was trying to add shadows to the edge of the planet by multiplying the image:  
+<img src="Media/planet.jpg" width="300" height="300" />  
+But got into problems of using 2 textures for one planet.  
