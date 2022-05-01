@@ -1,6 +1,23 @@
 # Gravity Simulation
- Computer Graphics Lab  
-Simulate gravitational forces between planetary objects.
+Computer Graphics Lab  
+This simulation demonstrate the interaction between planetary bodies through gravitational forces. The user can create planets with different size, density and initial velocity, can edit each planet separately and control the gravitational constant. When the setup is ready, the user can then click on the Start button and the simulation will begin.  
+The concept of gravity is shown here as a force of attraction between each pair of planets that the user created, each different setup will produce different results which may include collisions or any kind of periodic revolutions such as 2 planets orbit around each other.
+Some collisions make a big explosions and create several smaller planets/asteroids, while others don’t break things apart but leave impact craters. For instance, Mars has been shaped by impact. Its northern half is smooth and low, its southern half mountainous and rough.
+
+##### <ins>Theory - equations used in the simulation</ins>
+Planet's mass:  
+$$m = \rho*V$$
+where $m = mass, \rho = density, V = volume$  
+And sphere volume:  
+$$V = \frac{4}{3*\pi*r^{3}}$$
+where $V = volume, r = radius$  
+Gravitational force (Newton's law of univeral gravitation):  
+$$F = G*\frac{m_{1}*m_{2}}{r^{2}}$$
+where $F = force, G = gravitational constant, m_{1} = mass of object 1, m_{2} = mass of object 2, r = distance between center of the masses$  
+Planet's acceleration (Newton's second law):  
+$$a = \frac{F}{m}$$
+where $a = acceleration, F = force, m = mass$  
+
 ## Weekly Report
 [Week 1](#272---53-6-hours-total)  
 [Week 2](#63---123-10-hours-and-30-minutes-total)  
@@ -10,6 +27,8 @@ Simulate gravitational forces between planetary objects.
 [Week 6](#34---94-0-hours-total)  
 [Week 7](#104---164-5-hours-total)  
 [Week 8](#244---304-12-hours-total)  
+[Week 9](#15---75--hours-total)  
+
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
 Studying the Simple and Fast Multimedia Library (SFML) - about 4 hours.  
@@ -78,3 +97,6 @@ What I got so far:
 Which is pretty good but it doesn't look natural so I was trying to add shadows to the edge of the planet by multiplying the image:  
 <img src="Media/planet.jpg" width="300" height="300" />  
 But got into problems of using 2 textures for one planet.  
+
+### <ins>1.5 - 7.5:</ins> (? hours total)
+
