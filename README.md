@@ -1,8 +1,8 @@
 # Gravity Simulation
 Computer Graphics Lab  
 This simulation demonstrate the interaction between planetary bodies through gravitational forces. The user can create planets with different size, density and initial velocity, can edit each planet separately and control the gravitational constant. When the setup is ready, the user can then click on the Start button and the simulation will begin.  
-The concept of gravity is shown here as a force of attraction between each pair of planets that the user created, each different setup will produce different results which may include collisions or any kind of periodic revolutions such as 2 planets orbit around each other.
-Some collisions make a big explosions and create several smaller planets/asteroids, while others don’t break things apart but leave impact craters. For instance, Mars has been shaped by impact. Its northern half is smooth and low, its southern half mountainous and rough.  
+The concept of gravity is shown here as a force of attraction between each pair of planets that the user created. Each different setup will produce different results which may include collisions or any kind of periodic revolutions such as 2 planets orbit around each other.
+Some collisions make a big explosions and create several smaller planets/asteroids, while others, don’t break things apart but leave impact craters. For instance, Mars has been shaped by impact. Its northern half is smooth and low, its southern half mountainous and rough.  
 <img src="Media/1-5-equations.png" width="671" height="427" />  
 
 ## Weekly Report
