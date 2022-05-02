@@ -41,7 +41,7 @@ public:
     void Update(Time elapsed);
     void RemovePlanet(int index = -1);
     void ClearEverything();
-    bool GetState(); // maybe we dont even need it
+    bool GetState();
     void ToggleState();
     void ToggleArrowVisibility(bool isVel);
     bool TrackMouse();

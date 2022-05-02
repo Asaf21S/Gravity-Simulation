@@ -268,9 +268,9 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 	@param elapsed - the time passed since the last call.
 	@param amount - the amount of planets currently in the simulation.
 */
-void Menu::UpdateStats(Time elapsed, int amount)
+void Menu::UpdateStats(Time elapsed, bool isPaused, int amount)
 {
-	lifeTime += elapsed;
+	if (!isPaused) lifeTime += elapsed;
 	std::string s = "Amount of planets: " + std::to_string(amount) + "\nYears passed : " + std::to_string(int(lifeTime.asSeconds()));
 	stats.setString(s);
 }

@@ -63,5 +63,5 @@ public:
 	bool MenuIsCollapsed();
 	void CollapseMenu();
 	void UpdateSlider(float mouseX, PlanetSystem& sys);
-	void UpdateStats(Time elapsed, int amount);
+	void UpdateStats(Time elapsed, bool isPaused, int amount);
 };

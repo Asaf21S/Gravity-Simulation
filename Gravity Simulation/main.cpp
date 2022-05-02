@@ -106,7 +106,7 @@ int main()
         if (planetSystem.TrackMouse()) planetSystem.UpdateArrow(Vector2f(Mouse::getPosition(window)));
         if (menu.TrackMouse()) menu.UpdateSlider(float(Mouse::getPosition(window).x), planetSystem);
         if (menu.MenuIsCollapsed()) menu.CollapseMenu();
-        menu.UpdateStats(elapsed, planetSystem.GetAmount());
+        menu.UpdateStats(elapsed, planetSystem.GetState(), planetSystem.GetAmount());
 
         window.draw(planetSystem);
         window.draw(menu);
