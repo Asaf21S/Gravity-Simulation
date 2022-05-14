@@ -4,13 +4,13 @@ This simulation demonstrate the interaction between planetary bodies through gra
 The concept of gravity is shown here as a force of attraction between each pair of planets that the user created. Each different setup will produce different results which may include collisions or any kind of periodic revolutions such as 2 planets orbit around each other.
 Some collisions make a big explosions and create several smaller planets/asteroids, while others, don’t break things apart but leave impact craters. For instance, Mars has been shaped by impact. Its northern half is smooth and low, its southern half mountainous and rough.  
 <img src="Media/1-5-equations.png" width="671" height="427" />  
-<img src="Media/2-5-stepPart.png" width="757" height="182" />  
+<img src="Media/2-5-stepPart.png" width="747" height="205" />  
 ```cpp
 if (!isPaused)
-    {
-        velocity += acceleration;
-        planet.move(velocity);
-    }
+{
+  velocity += acceleration;
+  planet.move(velocity);
+}
 ```
 
 ## Weekly Report
@@ -22,7 +22,8 @@ if (!isPaused)
 [Week 6](#34---94-0-hours-total)  
 [Week 7](#104---164-5-hours-total)  
 [Week 8](#244---304-12-hours-total)  
-[Week 9](#15---75--hours-total)  
+[Week 9](#15---75-7-hours-total)  
+[Week 10](#85---145--hours-total)  
 
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
@@ -93,6 +94,14 @@ Which is pretty good but it doesn't look natural so I was trying to add shadows 
 <img src="Media/planet.jpg" width="300" height="300" />  
 But got into problems of using 2 textures for one planet.  
 
-### <ins>1.5 - 7.5:</ins> (? hours total)
+### <ins>1.5 - 7.5:</ins> (7 hours total)
 Adding an explanation to the report - about 2 hours and 15 minutes.  
 Fixing a bug with the time elapsed - about 15 minutes.  
+Trying to understand how textures works in SFML and how to combine 2 textures - about 4 hours and 30 minutes.    
+
+### <ins>8.5 - 14.5:</ins> (? hours total)
+Finally managed to properly add surface and shadow textures to a planet, as well as support for size changing - about 6 hours.  
+Without Shadow | With Shadow
+--- | ---
+<img src="Media/14-5-withoutShadow.gif" width="576" height="324" /> | <img src="Media/14-5-withShadow.gif" width="576" height="324" />
+Adding textures for every planet, not just one, and assigning random surface texture for each planet

@@ -29,24 +29,13 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
         backgroundParticles.push_back(Particle(pos, radius, vel));
     }
 
-    renderTexture.create(500, 500);
+    if (!planetShadowTexture.loadFromFile("Textures/planet.jpg"))
+        std::cerr << "Unable to load texture 1." << std::endl;
+    if (!planetTexture.loadFromFile("Textures/mercury.jpg"))
+        std::cerr << "Unable to load texture 2." << std::endl; 
 
-    Image planet;
-    mercury.loadFromFile("Textures/mercury.jpg");
-    planet.loadFromFile("Textures/planet.jpg");
-    
-    sf::Texture texture;
-    texture.loadFromImage(planet);
-    sf::Sprite sprite;
-    sprite.setTexture(texture, true);
-
-    renderTexture.draw(sprite);
-
-    planetTexture.loadFromImage(mercury);
-
-    //planetTexture.create(mercury.getSize().x * 2, mercury.getSize().y);
-    //planetTexture.update
-
+    planetShadowSprite.setTexture(planetShadowTexture);
+    planetSprite.setTexture(planetTexture);
 }
 
 /**
@@ -76,7 +65,8 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
         if (isPaused && !inPlanet)
         {
             // adding new planet
-            planets.push_back(Planet(mousePos));
+            planets.push_back(Planet(mousePos, finalTex));
+            xValues.push_back(0.0f);
             float dist;
             currentMaxR = 500;
             for (int i = 0; i < planets.size() - 1; i++)
@@ -89,11 +79,6 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
             {
                 expandPlanet = true;
                 if (showAcc) planets.back().ToggleArrowVisibility(false);
-            }
-            if (planets.size() == 1)
-            {
-                planets[0].planet.setTexture(&planetTexture);
-                xVal = 0;
             }
         }
     }
@@ -117,13 +102,7 @@ void PlanetSystem::Update(Time elapsed)
     // update particles
     if (!isPaused)
     {
-        if (planets.size() > 0)
-        {
-            xVal += 0.5;
-            if (xVal >= planetTexture.getSize().x / 1.5) xVal -= planetTexture.getSize().x / 1.5;
-            planets[0].planet.setTextureRect(IntRect(xVal, planetTexture.getSize().y / 2 - planets[0].GetRadius(), 2 * planets[0].GetRadius(), 2 * planets[0].GetRadius()));
-        }
-
+        // delete background particles that outside the frame
         for (int i = 0; i < backgroundParticles.size(); i++)
         {
             backgroundParticles[i].Update();
@@ -137,6 +116,7 @@ void PlanetSystem::Update(Time elapsed)
                 break;
             }
         }
+        // sparkle-effect
         if (rand() % 40 == 0)
         {
             // choose random particle:
@@ -144,6 +124,7 @@ void PlanetSystem::Update(Time elapsed)
             backgroundParticles[i].isSparkling = true;
         }
 
+        // delete explosion particles that outside the frame
         for (int i = 0; i < explosionParticles.size(); i++)
         {
             explosionParticles[i].Update();
@@ -155,6 +136,13 @@ void PlanetSystem::Update(Time elapsed)
                 explosionParticles.erase(explosionParticles.begin() + i);
                 break;
             }
+        }
+
+        // rotate planets' texture
+        for (int i = 0; i < planets.size(); i++)
+        {
+            xValues[i] += 0.5;
+            if (xValues[i] >= planetTexture.getSize().x / 1.5) xValues[i] -= planetTexture.getSize().x / 1.5;
         }
     }
 
@@ -180,13 +168,29 @@ void PlanetSystem::Update(Time elapsed)
             }
         }
         // need to call planets[i].SetArrowVisibility before calling planets[i].Update
+
+        // set the planet texture
+        float r1 = planets[i].GetRadius();
+
+        planetSprite.setTextureRect(IntRect(xValues[i], planetTexture.getSize().y / 2 - r1, 2 * r1, 2 * r1));
+        planetShadowSprite.setScale(2 * r1 / planetShadowTexture.getSize().x, 2 * r1 / planetShadowTexture.getSize().y);
+        RenderTexture renderTexture;
+        renderTexture.create(2 * r1, 2 * r1);
+        renderTexture.draw(planetSprite);
+        renderTexture.draw(planetShadowSprite, sf::RenderStates(sf::BlendMultiply));
+        renderTexture.display();
+        finalTex = renderTexture.getTexture();        
+
         planets[i].Update(elapsed, isPaused);
 
         // check for collisions:
+        Vector2f pos1 = planets[i].GetPosition();
+
         for (int j = 0; j < i; j++)
         {
-            Vector2f pos1 = planets[i].GetPosition(), pos2 = planets[j].GetPosition();
-            float r1 = planets[i].GetRadius(), r2 = planets[j].GetRadius();
+            Vector2f pos2 = planets[j].GetPosition();
+            float r2 = planets[j].GetRadius();
+
             if (Planet::Dist(pos1, pos2) <= r1 + r2) // planets collide
             {
                 // add explosion particles
@@ -225,7 +229,7 @@ void PlanetSystem::Update(Time elapsed)
                 {
                     bool planetOverriding;
                     float phi;
-                    Planet pl(Vector2f(0.0f, 0.0f));
+                    Planet pl(Vector2f(0.0f, 0.0f), finalTex);
                     Vector2f plVel(0.0f, 0.0f);
 
                     int amount = 3 + (rand() % 3);
@@ -239,9 +243,9 @@ void PlanetSystem::Update(Time elapsed)
                             pl.planet.setPosition(pos1 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r1))));
                             pl.SetRadius(10 + (rand() % int(r1 / 2 - 9)));
 
-                            for (Planet newPlanet : newPlanets)
+                            for (int newP = 0; newP < newPlanets.size(); newP++)
                             {
-                                if (Planet::Dist(newPlanet.GetPosition(), pl.GetPosition()) <= newPlanet.GetRadius() + pl.GetRadius())
+                                if (Planet::Dist(newPlanets[newP].GetPosition(), pl.GetPosition()) <= newPlanets[newP].GetRadius() + pl.GetRadius())
                                     planetOverriding = true;
                             }
                         } while (planetOverriding);
@@ -263,9 +267,9 @@ void PlanetSystem::Update(Time elapsed)
                             pl.planet.setPosition(pos2 + Vector2f(cos(phi), sin(phi)) * float(20 + (rand() % int(r2))));
                             pl.SetRadius(10 + (rand() % int(r2 / 2 - 9)));
 
-                            for (Planet newPlanet : newPlanets)
+                            for (int newP = 0; newP < newPlanets.size(); newP++)
                             {
-                                if (Planet::Dist(newPlanet.GetPosition(), pl.GetPosition()) <= newPlanet.GetRadius() + pl.GetRadius())
+                                if (Planet::Dist(newPlanets[newP].GetPosition(), pl.GetPosition()) <= newPlanets[newP].GetRadius() + pl.GetRadius())
                                     planetOverriding = true;
                             }
                         } while (planetOverriding);
@@ -278,6 +282,8 @@ void PlanetSystem::Update(Time elapsed)
 
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
+                    xValues.erase(xValues.begin() + i);
+                    xValues.erase(xValues.begin() + j);
                 }
                 else if (r1 > 40 && r2 <= 40) // planet i absorb planet j
                 {
@@ -285,6 +291,7 @@ void PlanetSystem::Update(Time elapsed)
                     SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + j);
+                    xValues.erase(xValues.begin() + j);
                 }
                 else if (r2 > 40 && r1 <= 40) // planet j absorb planet i
                 {
@@ -292,11 +299,14 @@ void PlanetSystem::Update(Time elapsed)
                     SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + i);
+                    xValues.erase(xValues.begin() + i);
                 }
                 else // both planets too small
                 {
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
+                    xValues.erase(xValues.begin() + i);
+                    xValues.erase(xValues.begin() + j);
                 }
                 break;
             }
@@ -309,6 +319,7 @@ void PlanetSystem::Update(Time elapsed)
         {
             if (showAcc) newPlanets[i].ToggleArrowVisibility(false);
             if (showVel) newPlanets[i].ToggleArrowVisibility(true);
+            xValues.push_back(0.0f);
         }
         
         // add new planets to the system
@@ -345,6 +356,7 @@ void PlanetSystem::RemovePlanet(int index)
 {
     if (index == -1) index += planets.size();
     planets.erase(planets.begin() + index);
+    xValues.erase(xValues.begin() + index);
     StopExpanding(true);
 }
 
@@ -360,6 +372,7 @@ void PlanetSystem::ClearEverything()
     for (int i = planets.size() - 1; i >= 0; i--)
     {
         planets.erase(planets.begin() + i);
+        xValues.erase(xValues.begin() + i);
     }
     setVelocityInd = -1;
 }

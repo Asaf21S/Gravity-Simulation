@@ -24,6 +24,7 @@ class Planet : public Drawable, public Transformable
     VertexArray accArrow;
     bool showAccArrow;
     bool accTooSmall;
+    Texture texture;
     Time lifeTime;
 
     void SetArrow(Vector2f arrowPoint, bool isVel);
@@ -40,7 +41,7 @@ class Planet : public Drawable, public Transformable
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-    Planet(Vector2f position);
+    Planet(Vector2f position, Texture& tex);
     float GetRadius() const;
     float GetDensity() const;
     float GetVelDirection() const;
