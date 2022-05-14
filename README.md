@@ -103,5 +103,5 @@ Trying to understand how textures works in SFML and how to combine 2 textures - 
 Finally managed to properly add surface and shadow textures to a planet, as well as support for size changing - about 6 hours.  
 Without Shadow | With Shadow
 --- | ---
-<img src="Media/14-5-withoutShadow.gif" width="576" height="324" /> | <img src="Media/14-5-withShadow.gif" width="576" height="324" />
-Adding textures for every planet, not just one, and assigning random surface texture for each planet
+<img src="Media/14-5-withoutShadow.gif" width="288" height="162" /> | <img src="Media/14-5-withShadow.gif" width="288" height="162" />  
+Adding textures for every planet, not just one, and assigning random surface texture for each planet  
