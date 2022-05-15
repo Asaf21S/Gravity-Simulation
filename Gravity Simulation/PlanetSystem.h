@@ -9,7 +9,6 @@
 #include "Particle.h"
 #include "Menu.h"
 using namespace sf;
-
 class Menu;
 
 class PlanetSystem : public Drawable, public Transformable
@@ -26,8 +25,8 @@ class PlanetSystem : public Drawable, public Transformable
     int setVelocityInd;
     float currentMaxR;
 
-    Texture planetShadowTexture, planetTexture;
-    Sprite planetShadowSprite, planetSprite;
+    Texture planetShadowTexture, planetTextures[TEXTURES_AMOUNT];
+    Sprite planetShadowSprite, planetSprites[TEXTURES_AMOUNT];
     std::list<Texture> finalTex;
     std::vector<float> xValues;
 

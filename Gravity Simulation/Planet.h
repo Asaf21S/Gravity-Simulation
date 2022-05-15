@@ -8,6 +8,7 @@ using namespace sf;
 const float ARROW_LENGTH_TO_VELOCITY = 75;
 const float ARROW_LENGTH_TO_ACCELERATION = 1000;
 const float ARROW_OFFSET = 5;
+const int TEXTURES_AMOUNT = 10;
 
 class Planet : public Drawable, public Transformable
 {
@@ -24,7 +25,10 @@ class Planet : public Drawable, public Transformable
     VertexArray accArrow;
     bool showAccArrow;
     bool accTooSmall;
+    int planetSurfaceInd;
+    float spinAngle, spinSpeed;
     Time lifeTime;
+    static int texind;
 
     void SetArrow(Vector2f arrowPoint, bool isVel);
     void UpdateArrow(bool isVel);
@@ -41,7 +45,7 @@ class Planet : public Drawable, public Transformable
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-    Planet(Vector2f position);
+    Planet(Vector2f position, int surfaceIndex);
     float GetRadius() const;
     float GetDensity() const;
     float GetVelDirection() const;

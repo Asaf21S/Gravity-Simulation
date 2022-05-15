@@ -30,12 +30,34 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
     }
 
     if (!planetShadowTexture.loadFromFile("Textures/planet.jpg"))
-        std::cerr << "Unable to load texture 1." << std::endl;
-    if (!planetTexture.loadFromFile("Textures/mercury.jpg"))
-        std::cerr << "Unable to load texture 2." << std::endl; 
+        std::cerr << "Unable to load planet shadow texture." << std::endl;
+
+    if (!planetTextures[0].loadFromFile("Textures/earth.jpg"))
+        std::cerr << "Unable to load earth texture." << std::endl;
+    if (!planetTextures[1].loadFromFile("Textures/jupiter.jpg"))
+        std::cerr << "Unable to load jupiter texture." << std::endl;
+    if (!planetTextures[2].loadFromFile("Textures/mars.jpg"))
+        std::cerr << "Unable to load mars texture." << std::endl;
+    if (!planetTextures[3].loadFromFile("Textures/mercury.jpg"))
+        std::cerr << "Unable to load mercury texture." << std::endl;
+    if (!planetTextures[4].loadFromFile("Textures/moon.jpg"))
+        std::cerr << "Unable to load moon texture." << std::endl;
+    if (!planetTextures[5].loadFromFile("Textures/neptune.jpg"))
+        std::cerr << "Unable to load neptune texture." << std::endl;
+    if (!planetTextures[6].loadFromFile("Textures/saturn.jpg"))
+        std::cerr << "Unable to load saturn texture." << std::endl;
+    if (!planetTextures[7].loadFromFile("Textures/sun.jpg"))
+        std::cerr << "Unable to load sun texture." << std::endl;
+    if (!planetTextures[8].loadFromFile("Textures/uranus.jpg"))
+        std::cerr << "Unable to load uranus texture." << std::endl;
+    if (!planetTextures[9].loadFromFile("Textures/venus.jpg"))
+        std::cerr << "Unable to load venus texture." << std::endl;
 
     planetShadowSprite.setTexture(planetShadowTexture);
-    planetSprite.setTexture(planetTexture);
+    for (int i = 0; i < TEXTURES_AMOUNT; i++)
+    {
+        planetSprites[i].setTexture(planetTextures[i]);
+    }
 }
 
 /**
@@ -65,10 +87,11 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
         if (isPaused && !inPlanet)
         {
             // adding new planet
-            planets.push_back(Planet(mousePos));
+            planets.push_back(Planet(mousePos, -1));
             finalTex.push_back(Texture());
             planets.back().SetTexture(finalTex.back());
-            xValues.push_back(0.0f);
+            float initialXVal = rand() % planetTextures[planets.back().planetSurfaceInd].getSize().x / 1.5;
+            xValues.push_back(initialXVal);
             float dist;
             currentMaxR = 500;
             for (int i = 0; i < planets.size() - 1; i++)
@@ -143,8 +166,9 @@ void PlanetSystem::Update(Time elapsed)
         // rotate planets' texture
         for (int i = 0; i < planets.size(); i++)
         {
-            xValues[i] += 0.5;
-            if (xValues[i] >= planetTexture.getSize().x / 1.5) xValues[i] -= planetTexture.getSize().x / 1.5;
+            xValues[i] += planets[i].spinSpeed;
+            float texRectX = planetTextures[planets[i].planetSurfaceInd].getSize().x / 1.5;
+            if (xValues[i] >= texRectX) xValues[i] -= texRectX;
         }
     }
 
@@ -173,12 +197,16 @@ void PlanetSystem::Update(Time elapsed)
 
         // set the planet texture
         float r1 = planets[i].GetRadius();
+        int currentSurface = planets[i].planetSurfaceInd;
 
-        planetSprite.setTextureRect(IntRect(xValues[i], planetTexture.getSize().y / 2 - r1, 2 * r1, 2 * r1));
+        planetSprites[currentSurface].setTextureRect(IntRect(xValues[i], planetTextures[currentSurface].getSize().y / 2 - r1, 2 * r1, 2 * r1));
+        planetSprites[currentSurface].setOrigin(Vector2f(planetSprites[currentSurface].getLocalBounds().width / 2, planetSprites[currentSurface].getLocalBounds().height / 2));
+        planetSprites[currentSurface].setRotation(planets[i].spinAngle);
+        planetSprites[currentSurface].setPosition(Vector2f(r1, r1));
         planetShadowSprite.setScale(2 * r1 / planetShadowTexture.getSize().x, 2 * r1 / planetShadowTexture.getSize().y);
         RenderTexture renderTexture;
         renderTexture.create(2 * r1, 2 * r1);
-        renderTexture.draw(planetSprite);
+        renderTexture.draw(planetSprites[currentSurface]);
         renderTexture.draw(planetShadowSprite, sf::RenderStates(sf::BlendMultiply));
         renderTexture.display();
         std::list<Texture>::iterator texPtrs = GetTextureIterator(i);
@@ -238,7 +266,7 @@ void PlanetSystem::Update(Time elapsed)
                     int amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++) // planet i explosion
                     {
-                        Planet pl(Vector2f(0.0f, 0.0f));
+                        Planet pl(Vector2f(0.0f, 0.0f), currentSurface);
                         do
                         {
                             planetOverriding = false;
@@ -263,7 +291,7 @@ void PlanetSystem::Update(Time elapsed)
                     amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++) // planet j explosion
                     {
-                        Planet pl(Vector2f(0.0f, 0.0f));
+                        Planet pl(Vector2f(0.0f, 0.0f), planets[j].planetSurfaceInd);
                         do
                         {
                             planetOverriding = false;

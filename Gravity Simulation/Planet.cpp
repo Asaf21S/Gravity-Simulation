@@ -1,10 +1,12 @@
 ﻿#include "Planet.h"
 
+int Planet::texind = 0;
+
 /**
     Planet constructor.
     @param position - the position of the planet center.
 */
-Planet::Planet(Vector2f position) :
+Planet::Planet(Vector2f position, int surfaceIndex) : // -1 for random
     planet(0),
     density(1.f),
     velocity(0, 0),
@@ -27,6 +29,13 @@ Planet::Planet(Vector2f position) :
     accArrow[0].color = Color(0, 153, 153);
     accArrow[3].color = Color(255, 255, 255);
     accArrow[4].color = Color(255, 255, 255);
+    
+    if (surfaceIndex == -1)
+        planetSurfaceInd = rand() % TEXTURES_AMOUNT; //texind++ % TEXTURES_AMOUNT;
+    else
+        planetSurfaceInd = surfaceIndex;
+    spinAngle = rand() % 360;
+    spinSpeed = float(rand() % 15) / 10;
 }
 
 /**
