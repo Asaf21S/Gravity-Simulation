@@ -4,7 +4,7 @@
     Planet constructor.
     @param position - the position of the planet center.
 */
-Planet::Planet(Vector2f position, Texture& tex) :
+Planet::Planet(Vector2f position) :
     planet(0),
     density(1.f),
     velocity(0, 0),
@@ -27,8 +27,6 @@ Planet::Planet(Vector2f position, Texture& tex) :
     accArrow[0].color = Color(0, 153, 153);
     accArrow[3].color = Color(255, 255, 255);
     accArrow[4].color = Color(255, 255, 255);
-
-    planet.setTexture(&tex);
 }
 
 /**
@@ -169,6 +167,11 @@ Vector2f Planet::GetPosition()
     return Vector2f(planet.getPosition().x + planet.getRadius(), planet.getPosition().y + planet.getRadius());
 }
 
+void Planet::SetTexture(Texture& tex)
+{
+    planet.setTexture(&tex);
+}
+
 /**
     Set the radius of the planet.
     @param radius - the value which the radius will be set to.
@@ -252,7 +255,6 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
         velocity += acceleration;
         planet.move(velocity);
     }
-    planet.setTextureRect(IntRect(0, 0, planet.getTexture()->getSize().x, planet.getTexture()->getSize().y));
     
     if (showVelArrow) UpdateArrow(true);
     if (showAccArrow) UpdateArrow(false);
@@ -281,7 +283,6 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
 
     // draw the planet
     target.draw(planet);// , states);
-    //std::cout << (planet.getTexture() == NULL) << std::endl;
 
     // draw the velocity arrow
     if (showVelArrow && !velTooSmall)

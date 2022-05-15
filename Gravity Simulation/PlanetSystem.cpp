@@ -65,7 +65,9 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
         if (isPaused && !inPlanet)
         {
             // adding new planet
-            planets.push_back(Planet(mousePos, finalTex));
+            planets.push_back(Planet(mousePos));
+            finalTex.push_back(Texture());
+            planets.back().SetTexture(finalTex.back());
             xValues.push_back(0.0f);
             float dist;
             currentMaxR = 500;
@@ -179,7 +181,9 @@ void PlanetSystem::Update(Time elapsed)
         renderTexture.draw(planetSprite);
         renderTexture.draw(planetShadowSprite, sf::RenderStates(sf::BlendMultiply));
         renderTexture.display();
-        finalTex = renderTexture.getTexture();        
+        std::list<Texture>::iterator texPtrs = GetTextureIterator(i);
+        *texPtrs = renderTexture.getTexture();
+        planets[i].planet.setTextureRect(IntRect(0, 0, (*texPtrs).getSize().x, (*texPtrs).getSize().y));
 
         planets[i].Update(elapsed, isPaused);
 
@@ -229,12 +233,12 @@ void PlanetSystem::Update(Time elapsed)
                 {
                     bool planetOverriding;
                     float phi;
-                    Planet pl(Vector2f(0.0f, 0.0f), finalTex);
                     Vector2f plVel(0.0f, 0.0f);
 
                     int amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++) // planet i explosion
                     {
+                        Planet pl(Vector2f(0.0f, 0.0f));
                         do
                         {
                             planetOverriding = false;
@@ -259,6 +263,7 @@ void PlanetSystem::Update(Time elapsed)
                     amount = 3 + (rand() % 3);
                     for (int p = 0; p < amount; p++) // planet j explosion
                     {
+                        Planet pl(Vector2f(0.0f, 0.0f));
                         do
                         {
                             planetOverriding = false;
@@ -282,6 +287,8 @@ void PlanetSystem::Update(Time elapsed)
 
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
+                    finalTex.erase(GetTextureIterator(i));
+                    finalTex.erase(GetTextureIterator(j));
                     xValues.erase(xValues.begin() + i);
                     xValues.erase(xValues.begin() + j);
                 }
@@ -291,6 +298,7 @@ void PlanetSystem::Update(Time elapsed)
                     SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + j);
+                    finalTex.erase(GetTextureIterator(j));
                     xValues.erase(xValues.begin() + j);
                 }
                 else if (r2 > 40 && r1 <= 40) // planet j absorb planet i
@@ -299,12 +307,15 @@ void PlanetSystem::Update(Time elapsed)
                     SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
 
                     planets.erase(planets.begin() + i);
+                    finalTex.erase(GetTextureIterator(i));
                     xValues.erase(xValues.begin() + i);
                 }
                 else // both planets too small
                 {
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
+                    finalTex.erase(GetTextureIterator(i));
+                    finalTex.erase(GetTextureIterator(j));
                     xValues.erase(xValues.begin() + i);
                     xValues.erase(xValues.begin() + j);
                 }
@@ -319,6 +330,8 @@ void PlanetSystem::Update(Time elapsed)
         {
             if (showAcc) newPlanets[i].ToggleArrowVisibility(false);
             if (showVel) newPlanets[i].ToggleArrowVisibility(true);
+            finalTex.push_back(Texture());
+            newPlanets[i].SetTexture(finalTex.back());
             xValues.push_back(0.0f);
         }
         
@@ -356,6 +369,7 @@ void PlanetSystem::RemovePlanet(int index)
 {
     if (index == -1) index += planets.size();
     planets.erase(planets.begin() + index);
+    finalTex.erase(GetTextureIterator(index));
     xValues.erase(xValues.begin() + index);
     StopExpanding(true);
 }
@@ -372,6 +386,7 @@ void PlanetSystem::ClearEverything()
     for (int i = planets.size() - 1; i >= 0; i--)
     {
         planets.erase(planets.begin() + i);
+        finalTex.erase(GetTextureIterator(i));
         xValues.erase(xValues.begin() + i);
     }
     setVelocityInd = -1;
@@ -530,6 +545,13 @@ void PlanetSystem::CheckIndex(int index)
         std::string msg = "Error: can't find the planet. Requested index: " + std::to_string(index) + ".";
         throw std::range_error(msg);
     }
+}
+
+std::list<Texture>::iterator PlanetSystem::GetTextureIterator(int index)
+{
+    std::list<Texture>::iterator texPtrs = finalTex.begin();
+    std::advance(texPtrs, index);
+    return texPtrs;
 }
 
 /**

@@ -23,7 +23,8 @@ if (!isPaused)
 [Week 7](#104---164-5-hours-total)  
 [Week 8](#244---304-12-hours-total)  
 [Week 9](#15---75-7-hours-total)  
-[Week 10](#85---145--hours-total)  
+[Week 10](#85---145-7-hours-total)  
+[Week 11](#155---215--hours-total)  
 
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
@@ -99,10 +100,14 @@ Adding an explanation to the report - about 2 hours and 15 minutes.
 Fixing a bug with the time elapsed - about 15 minutes.  
 Trying to understand how textures works in SFML and how to combine 2 textures - about 4 hours and 30 minutes.    
 
-### <ins>8.5 - 14.5:</ins> (? hours total)
+### <ins>8.5 - 14.5:</ins> (7 hours total)
 Finally managed to properly add surface and shadow textures to a planet, as well as support for size changing - about 6 hours.  
 Without Shadow | With Shadow
 --- | ---
 <img src="Media/14-5-withoutShadow.gif" width="297" height="221" /> | <img src="Media/14-5-withShadow.gif" width="301" height="203" />
 
-Adding textures for every planet, not just one, and assigning random surface texture for each planet  
+* Note: converting them to gif made these videos a bit pixelated.  
+Updating the report and searching for various planets surface's textures - about 1 hour.  
+
+### <ins>15.5 - 21.5:</ins> (? hours total)
+Adding textures for every planet, not just one - about 1 hour and 15 minutes.  

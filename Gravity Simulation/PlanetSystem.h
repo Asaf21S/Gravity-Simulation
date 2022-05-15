@@ -3,6 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
+#include <list>
 #include <SFML/Graphics.hpp>
 #include "Planet.h"
 #include "Particle.h"
@@ -27,10 +28,11 @@ class PlanetSystem : public Drawable, public Transformable
 
     Texture planetShadowTexture, planetTexture;
     Sprite planetShadowSprite, planetSprite;
-    Texture finalTex;
+    std::list<Texture> finalTex;
     std::vector<float> xValues;
 
     void CheckIndex(int index);
+    std::list<Texture>::iterator GetTextureIterator(int index);
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
