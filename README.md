@@ -112,7 +112,7 @@ Updating the report and searching for various planets surface's textures - about
 ### <ins>15.5 - 21.5:</ins> (? hours total)
 Adding textures for every planet, not just one - about 1 hour and 15 minutes.  
 Assigning random surface texture for each planet. Planets explodes into planets with the same surface - about 1 hour and 15 minutes.  
-<img src="Media/15-5-surfaceTextures.png" width="1462" height="530" />  
+<img src="Media/15-5-surfaceTextures.png" width="731" height="265" />  
 **Textures:**  
 1. Earth   
 2. jupiter  
@@ -124,4 +124,5 @@ Assigning random surface texture for each planet. Planets explodes into planets 
 8. sun  
 9. uranus  
 10. venus  
+
 Initializing planets rotation with random starting point, angle and speed - about 45 minutes.  
