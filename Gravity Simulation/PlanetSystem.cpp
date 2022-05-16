@@ -32,6 +32,14 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
     if (!planetShadowTexture.loadFromFile("Textures/planet.jpg"))
         std::cerr << "Unable to load planet shadow texture." << std::endl;
 
+    /**
+    * Source: https://www.solarsystemscope.com/textures/
+    * 
+    * Textures in this pack are based on NASA elevation and imagery data.
+    * Colors and shades of the textures are tuned according to true-color
+    * photos made by Messenger, Viking and Cassini spacecrafts, and, of
+    * course, the Hubble Space Telescope.
+    */
     if (!planetTextures[0].loadFromFile("Textures/earth.jpg"))
         std::cerr << "Unable to load earth texture." << std::endl;
     if (!planetTextures[1].loadFromFile("Textures/jupiter.jpg"))
@@ -207,7 +215,7 @@ void PlanetSystem::Update(Time elapsed)
         RenderTexture renderTexture;
         renderTexture.create(2 * r1, 2 * r1);
         renderTexture.draw(planetSprites[currentSurface]);
-        renderTexture.draw(planetShadowSprite, sf::RenderStates(sf::BlendMultiply));
+        if (currentSurface != 7) renderTexture.draw(planetShadowSprite, sf::RenderStates(sf::BlendMultiply));
         renderTexture.display();
         std::list<Texture>::iterator texPtrs = GetTextureIterator(i);
         *texPtrs = renderTexture.getTexture();

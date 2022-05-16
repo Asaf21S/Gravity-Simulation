@@ -114,15 +114,17 @@ Adding textures for every planet, not just one - about 1 hour and 15 minutes.
 Assigning random surface texture for each planet. Planets explodes into planets with the same surface - about 1 hour and 15 minutes.  
 <img src="Media/15-5-surfaceTextures.png" width="731" height="265" />  
 **Textures:**  
+Source: https://www.solarsystemscope.com/textures/  
+> Textures in this pack are based on NASA elevation and imagery data. Colors and shades of the textures are tuned according to true-color photos made by Messenger, Viking and Cassini spacecrafts, and, of course, the Hubble Space Telescope.  
 1. Earth   
-2. jupiter  
-3. mars  
-4. mercury  
-5. moon  
-6. neptune  
-7. saturn  
-8. sun  
-9. uranus  
-10. venus  
+2. Jupiter  
+3. Mars  
+4. Mercury  
+5. Moon  
+6. Neptune  
+7. Saturn  
+8. Sun  
+9. Uranus  
+10. Venus  
 
-Initializing planets rotation with random starting point, angle and speed - about 45 minutes.  
+Initializing planets rotation with random starting point, angle and speed. Removing shadow texture from the sun surface's texture - about 45 minutes.  
