@@ -16,13 +16,16 @@ Menu::Menu(Font& font) :
 	cbAcc(400, "Show Planet's Acceleration", font, false),
 	btnClear(Vector2f(MENU_WIDTH / 2, 480), 240, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
 	btnState(Vector2f(MENU_WIDTH / 2, 580), 100, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
-	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 200), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
-	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 200), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
-	slPlanetSize(Vector2f(MENU_WIDTH / 2, 320), 10, 500, 10, "Planet Size", font),
-	slPlanetDensity(Vector2f(MENU_WIDTH / 2, 420), 0.5, 6, 1, "Planet Density", font),
-	slPlanetVelDirection(Vector2f(MENU_WIDTH / 2, 560), 0, 360, 0, "Velocity Direction", font),
-	slPlanetVelMagnitude(Vector2f(MENU_WIDTH / 2, 660), 0, 5, 0, "Velocity Magnitude", font),
-	btnPlanetDelete(Vector2f(MENU_WIDTH / 2, 780), 250, 50, "Remove Planet", "Remove Planet", font, 28, Color::White, Color::Red)
+	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 190), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
+	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 190), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
+	btnPreviousSurface(Vector2f(MENU_WIDTH / 2 - 105, 300), 20, 55, "<", "<", font, 56, Color(192, 192, 192), Color(192, 192, 192)),
+	planetDisplay(Vector2f(MENU_WIDTH / 2, 320), 0),
+	btnNextSurface(Vector2f(MENU_WIDTH / 2 + 105, 300), 20, 55, ">", ">", font, 56, Color(192, 192, 192), Color(192, 192, 192)),
+	slPlanetSize(Vector2f(MENU_WIDTH / 2, 450), 10, 500, 10, "Planet Size", font),
+	slPlanetDensity(Vector2f(MENU_WIDTH / 2, 550), 0.5, 6, 1, "Planet Density", font),
+	slPlanetVelDirection(Vector2f(MENU_WIDTH / 2, 650), 0, 360, 0, "Velocity Direction", font),
+	slPlanetVelMagnitude(Vector2f(MENU_WIDTH / 2, 750), 0, 5, 0, "Velocity Magnitude", font),
+	btnPlanetDelete(Vector2f(MENU_WIDTH / 2, 850), 250, 50, "Remove Planet", "Remove Planet", font, 28, Color::White, Color::Red)
 {
 	menuBackground.setFillColor(Color(32, 32, 32, 200));
 	menuBackground.setOutlineColor(Color(128, 128, 128, 200));
@@ -39,6 +42,13 @@ Menu::Menu(Font& font) :
 	stats.setString("Amount of planets: 0\nYears passed: 0");
 	stats.setCharacterSize(28);
 	stats.setOrigin(stats.getLocalBounds().left + stats.getLocalBounds().width / 2.0f, stats.getLocalBounds().top + stats.getLocalBounds().height / 2.0f);
+
+	surfaceName.setFont(font);
+	surfaceName.setString("");
+	surfaceName.setCharacterSize(28);
+	surfaceName.setOrigin(surfaceName.getLocalBounds().left + surfaceName.getLocalBounds().width / 2.0f, surfaceName.getLocalBounds().top + surfaceName.getLocalBounds().height / 2.0f);
+	surfaceName.setPosition(MENU_WIDTH / 2, 240);
+	
 }
 
 /**
@@ -150,6 +160,18 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 				slPlanetVelMagnitude.SetModify(true);
 				currentSlider = MenuSlider::pVelMag;
 			}
+			else if (btnPreviousSurface.contains(mousePos))
+			{
+				btnPreviousSurface.ButtonPressed();
+				int newSurface = sys.ChangeSurface(planetIndex, false);
+				UpdateSurfaceName(newSurface);
+			}
+			else if (btnNextSurface.contains(mousePos))
+			{
+				btnNextSurface.ButtonPressed();
+				int newSurface = sys.ChangeSurface(planetIndex, true);
+				UpdateSurfaceName(newSurface);
+			}
 			else if (btnPlanetDelete.contains(mousePos))
 			{
 				sys.RemovePlanet(planetIndex);
@@ -227,6 +249,53 @@ void Menu::EditPlanet(const Planet& p)
 	slPlanetDensity.SetValue(p.GetDensity());
 	slPlanetVelDirection.SetValue(p.GetVelDirection());
 	slPlanetVelMagnitude.SetValue(p.GetVelMagnitude());
+	UpdateSurfaceName(p.GetSurface());
+	planetDisplay = p;
+	planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
+}
+
+void Menu::UpdateSurfaceName(int surfaceIndex)
+{
+	std::string s;
+	switch (surfaceIndex)
+	{
+	case 0:
+		s = "Earth";
+		break;
+	case 1:
+		s = "Jupiter";
+		break;
+	case 2:
+		s = "Mars";
+		break;
+	case 3:
+		s = "Mercury";
+		break;
+	case 4:
+		s = "Moon";
+		break;
+	case 5:
+		s = "Neptune";
+		break;
+	case 6:
+		s = "Saturn";
+		break;
+	case 7:
+		s = "Sun";
+		break;
+	case 8:
+		s = "Uranus";
+		break;
+	case 9:
+		s = "Venus";
+		break;
+	default:
+		s = "Error In surface's name";
+		break;
+	}
+	surfaceName.setString(s);
+	surfaceName.setOrigin(surfaceName.getLocalBounds().left + surfaceName.getLocalBounds().width / 2.0f, surfaceName.getLocalBounds().top + surfaceName.getLocalBounds().height / 2.0f);
+	surfaceName.setPosition(MENU_WIDTH / 2, 240);
 }
 
 /**
@@ -244,7 +313,8 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 		break;
 	case MenuSlider::pSize:
 		slPlanetSize.Update(mouseX);
-		sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue());
+		planetDisplay = sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue());
+		planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
 		break;
 	case MenuSlider::pDensity:
 		slPlanetDensity.Update(mouseX);
@@ -356,6 +426,10 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 		{
 			target.draw(btnPreviousPlanet, states);
 			target.draw(btnNextPlanet, states);
+			target.draw(btnPreviousSurface, states);
+			target.draw(surfaceName, states);
+			target.draw(planetDisplay, states);
+			target.draw(btnNextSurface, states);
 			target.draw(slPlanetSize, states);
 			target.draw(slPlanetDensity, states);
 			target.draw(slPlanetVelDirection, states);

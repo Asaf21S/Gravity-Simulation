@@ -51,8 +51,9 @@ public:
     void SetGConst(float value);
     const Planet& Editing(int index);
     void RemoveOutlines();
-    void SetPlanetRadius(int index, float radius);
+    const Planet& SetPlanetRadius(int index, float radius);
     void SetPlanetDensity(int index, float density);
     void SetPlanetVelDir(int index, float dir);
     void SetPlanetVelMag(int index, float mag);
+    int ChangeSurface(int index, bool isNext);
 };

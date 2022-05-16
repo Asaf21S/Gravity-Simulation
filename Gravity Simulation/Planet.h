@@ -46,9 +46,11 @@ class Planet : public Drawable, public Transformable
 
 public:
     Planet(Vector2f position, int surfaceIndex);
+    void LockPlanet(bool display, Vector2f position = Vector2f(0.0f, 0.0f));
     float GetRadius() const;
     float GetDensity() const;
     float GetVelDirection() const;
     float GetVelMagnitude() const;
+    int GetSurface() const;
     static float Dist(Vector2f p1, Vector2f p2 = Vector2f(0.0f, 0.0f));
 };

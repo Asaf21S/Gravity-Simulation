@@ -43,6 +43,10 @@ class Menu : public Drawable, public Transformable
 	// Edit planet menu items
 	Button btnPreviousPlanet;
 	Button btnNextPlanet;
+	Button btnPreviousSurface;
+	Text surfaceName;
+	Planet planetDisplay;
+	Button btnNextSurface;
 	Slider slPlanetSize;
 	Slider slPlanetDensity;
 	Slider slPlanetVelDirection;
@@ -50,6 +54,7 @@ class Menu : public Drawable, public Transformable
 	Button btnPlanetDelete;
 
 	void EditPlanet(const Planet& p);
+	void UpdateSurfaceName(int surfaceIndex);
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:

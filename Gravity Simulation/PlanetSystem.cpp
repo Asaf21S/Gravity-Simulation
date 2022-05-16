@@ -527,10 +527,11 @@ void PlanetSystem::RemoveOutlines()
     @param index - the index of the planet to change the radius to.
     @param radius - the value which the radius will be set to.
 */
-void PlanetSystem::SetPlanetRadius(int index, float radius)
+const Planet& PlanetSystem::SetPlanetRadius(int index, float radius)
 {
     CheckIndex(index);
     planets[index].SetRadius(radius);
+    return planets[index];
 }
 
 /**
@@ -568,6 +569,13 @@ void PlanetSystem::SetPlanetVelMag(int index, float mag)
     CheckIndex(index);
     if (mag == 0) mag = 0.001;
     planets[index].velocity *= mag / planets[index].GetVelMagnitude();
+}
+
+int PlanetSystem::ChangeSurface(int index, bool isNext)
+{
+    CheckIndex(index);
+    planets[index].planetSurfaceInd = (planets[index].planetSurfaceInd + TEXTURES_AMOUNT + (isNext ? 1 : -1)) % TEXTURES_AMOUNT;
+    return planets[index].planetSurfaceInd;
 }
 
 /**

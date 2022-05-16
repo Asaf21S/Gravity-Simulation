@@ -107,6 +107,7 @@ Without Shadow | With Shadow
 <img src="Media/14-5-withoutShadow.gif" width="297" height="221" /> | <img src="Media/14-5-withShadow.gif" width="301" height="203" />
 
 * Note: converting them to gif made these videos a bit pixelated.  
+
 Updating the report and searching for various planets surface's textures - about 1 hour.  
 
 ### <ins>15.5 - 21.5:</ins> (? hours total)
@@ -128,3 +129,5 @@ Source: https://www.solarsystemscope.com/textures/
 10. Venus  
 
 Initializing planets rotation with random starting point, angle and speed. Removing shadow texture from the sun surface's texture - about 45 minutes.  
+Displaying the planet in the edit menu and enabling the option to change its surface - about 2 hours and 15 minutes.  
+<img src="Media/16-5-planetDisplay.gif" width="576" height="324" />  

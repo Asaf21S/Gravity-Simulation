@@ -35,7 +35,7 @@ Planet::Planet(Vector2f position, int surfaceIndex) : // -1 for random
     else
         planetSurfaceInd = surfaceIndex;
     spinAngle = rand() % 360;
-    spinSpeed = float(rand() % 15) / 10;
+    spinSpeed = float(5 + (rand() % 15)) / 10;
 }
 
 /**
@@ -157,6 +157,20 @@ void Planet::ToggleArrowVisibility(bool isVel)
     else showAccArrow = !showAccArrow;
 }
 
+void Planet::LockPlanet(bool display, Vector2f position)
+{
+    if (display)
+    {
+        planet.setScale(50 / GetRadius(), 50 / GetRadius());
+        position -= Vector2f(50.0f, 50.0f);
+        planet.setPosition(position);
+        planet.setOutlineThickness(0);
+    }
+    velocity = Vector2f(0.0f, 0.0f);
+    showVelArrow = false;
+    showAccArrow = false;
+}
+
 /**
     Increase the planet radius by factor = 1.
 */
@@ -231,6 +245,11 @@ float Planet::GetVelMagnitude() const
     return Dist(velocity);
 }
 
+int Planet::GetSurface() const
+{
+    return planetSurfaceInd;
+}
+
 /**
     Get the planet's mass.
 */
@@ -291,7 +310,7 @@ void Planet::draw(RenderTarget& target, RenderStates states) const
     states.texture = NULL;
 
     // draw the planet
-    target.draw(planet);// , states);
+    target.draw(planet); // , states);
 
     // draw the velocity arrow
     if (showVelArrow && !velTooSmall)
