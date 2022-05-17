@@ -131,3 +131,6 @@ Source: https://www.solarsystemscope.com/textures/
 Initializing planets rotation with random starting point, angle and speed. Removing shadow texture from the sun surface's texture - about 45 minutes.  
 Displaying the planet in the edit menu and enabling the option to change its surface - about 2 hours and 15 minutes.  
 <img src="Media/16-5-planetDisplay.gif" width="576" height="324" />  
+Enabling an option to lock and unlock a planet in its current position. Fixing a bug - when changing the planet radius (whether from its size slider in the menu or from colliding with another planet), the texture of the display planet in the edit menu gets distorted - about 2 hours and 50 minutes.  
+Fixing a bug, now when wer'e on the edit menu of a planet that is being exploded or absorbed, it will go back to the main menu - about 1 hour.  
+

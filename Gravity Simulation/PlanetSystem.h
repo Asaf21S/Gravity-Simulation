@@ -39,7 +39,7 @@ public:
     void MouseClicked(Vector2f mousePos, Menu& menu);
     int GetAmount();
     void Expand(int index = -1);
-    void Update(Time elapsed);
+    void Update(Time elapsed, Menu& menu);
     void RemovePlanet(int index = -1);
     void ClearEverything();
     bool GetState();
@@ -56,4 +56,5 @@ public:
     void SetPlanetVelDir(int index, float dir);
     void SetPlanetVelMag(int index, float mag);
     int ChangeSurface(int index, bool isNext);
+    void ToggleLock(int index);
 };

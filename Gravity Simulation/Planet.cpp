@@ -1,7 +1,5 @@
 ﻿#include "Planet.h"
 
-int Planet::texind = 0;
-
 /**
     Planet constructor.
     @param position - the position of the planet center.
@@ -16,7 +14,8 @@ Planet::Planet(Vector2f position, int surfaceIndex) : // -1 for random
     acceleration(0, 0),
     accArrow(PrimitiveType::TriangleFan, 7),
     showAccArrow(false),
-    accTooSmall(true)
+    accTooSmall(true),
+    isLocked(false)
 {
     planet.setPosition(position);
     planet.setOutlineColor(Color::Blue);
@@ -250,6 +249,11 @@ int Planet::GetSurface() const
     return planetSurfaceInd;
 }
 
+bool Planet::IsLocked() const
+{
+    return isLocked;
+}
+
 /**
     Get the planet's mass.
 */
@@ -280,8 +284,11 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
     if (!isPaused)
     {
         lifeTime += elapsed;
-        velocity += acceleration;
-        planet.move(velocity);
+        if (!isLocked)
+        {
+            velocity += acceleration;
+            planet.move(velocity);
+        }
     }
     
     if (showVelArrow) UpdateArrow(true);

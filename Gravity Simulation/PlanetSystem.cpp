@@ -82,6 +82,7 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
     }
     else
     {
+        // if the click was inside a planet -> edit this planet
         bool inPlanet = false;
         for (int i = 0; i < planets.size(); i++)
         {
@@ -92,6 +93,7 @@ void PlanetSystem::MouseClicked(Vector2f mousePos, Menu& menu)
                 break;
             }
         }
+
         if (isPaused && !inPlanet)
         {
             // adding new planet
@@ -130,7 +132,7 @@ int PlanetSystem::GetAmount()
     The function computes the gravitational forces between the planets, and check for collisions.
     @param elapsed - the time passed since the last call.
 */
-void PlanetSystem::Update(Time elapsed)
+void PlanetSystem::Update(Time elapsed, Menu& menu)
 {
     // update particles
     if (!isPaused)
@@ -321,6 +323,9 @@ void PlanetSystem::Update(Time elapsed)
                         newPlanets.push_back(pl);
                     }
 
+                    // in case we were on the edit menu of the planet that was exploded, going back to the main menu.
+                    menu.SwitchMenus(*this, -1, std::pair<int, int>(i, j));
+
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
                     finalTex.erase(GetTextureIterator(i));
@@ -331,7 +336,11 @@ void PlanetSystem::Update(Time elapsed)
                 else if (r1 > 40 && r2 <= 40) // planet i absorb planet j
                 {
                     SetPlanetRadius(i, std::cbrt(std::pow(r1, 3) + 64000));
+                    menu.UpdatePlanetDisplay(planets[i], i);
                     SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+
+                    // in case we were on the edit menu of the planet that was absorbed, going back to the main menu.
+                    menu.SwitchMenus(*this, -1, std::pair<int, int>(j, -1));
 
                     planets.erase(planets.begin() + j);
                     finalTex.erase(GetTextureIterator(j));
@@ -340,14 +349,21 @@ void PlanetSystem::Update(Time elapsed)
                 else if (r2 > 40 && r1 <= 40) // planet j absorb planet i
                 {
                     SetPlanetRadius(j, std::cbrt(std::pow(r2, 3) + 64000));
+                    menu.UpdatePlanetDisplay(planets[j], j);
                     SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+
+                    // in case we were on the edit menu of the planet that was absorbed, going back to the main menu.
+                    menu.SwitchMenus(*this, -1, std::pair<int, int>(i, -1));
 
                     planets.erase(planets.begin() + i);
                     finalTex.erase(GetTextureIterator(i));
                     xValues.erase(xValues.begin() + i);
                 }
-                else // both planets too small
+                else // both planets are too small
                 {
+                    // in case we were on the edit menu of one of the planets, going back to the main menu.
+                    menu.SwitchMenus(*this, -1, std::pair<int, int>(i, j));
+
                     planets.erase(planets.begin() + i);
                     planets.erase(planets.begin() + j);
                     finalTex.erase(GetTextureIterator(i));
@@ -576,6 +592,18 @@ int PlanetSystem::ChangeSurface(int index, bool isNext)
     CheckIndex(index);
     planets[index].planetSurfaceInd = (planets[index].planetSurfaceInd + TEXTURES_AMOUNT + (isNext ? 1 : -1)) % TEXTURES_AMOUNT;
     return planets[index].planetSurfaceInd;
+}
+
+void PlanetSystem::ToggleLock(int index)
+{
+    CheckIndex(index);
+    planets[index].isLocked = !planets[index].isLocked;
+    if (planets[index].isLocked) planets[index].LockPlanet(false);
+    else
+    {
+        if (showAcc) planets[index].ToggleArrowVisibility(false);
+        if (showVel) planets[index].ToggleArrowVisibility(true);
+    }
 }
 
 /**

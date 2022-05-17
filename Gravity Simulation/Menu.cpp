@@ -49,6 +49,17 @@ Menu::Menu(Font& font) :
 	surfaceName.setOrigin(surfaceName.getLocalBounds().left + surfaceName.getLocalBounds().width / 2.0f, surfaceName.getLocalBounds().top + surfaceName.getLocalBounds().height / 2.0f);
 	surfaceName.setPosition(MENU_WIDTH / 2, 240);
 	
+	if (!lockedTexture.loadFromFile("Textures/locked.png"))
+		std::cerr << "Unable to load locked texture." << std::endl;
+	if (!unlockedTexture.loadFromFile("Textures/unlocked.png"))
+		std::cerr << "Unable to load unlocked texture." << std::endl;
+
+	lockedSprite.setTexture(lockedTexture);
+	unlockedSprite.setTexture(unlockedTexture);
+	lockedSprite.setScale(0.15, 0.15);
+	unlockedSprite.setScale(0.15, 0.15);
+	lockedSprite.setPosition(MENU_WIDTH / 2 + 20, 335);
+	unlockedSprite.setPosition(MENU_WIDTH / 2 + 20, 335);
 }
 
 /**
@@ -140,6 +151,23 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 				planetIndex = (planetIndex + 1 + sys.GetAmount()) % sys.GetAmount();
 				EditPlanet(sys.Editing(planetIndex));
 			}
+			else if (btnPreviousSurface.contains(mousePos))
+			{
+				btnPreviousSurface.ButtonPressed();
+				int newSurface = sys.ChangeSurface(planetIndex, false);
+				UpdateSurfaceName(newSurface);
+			}
+			else if (lockedSprite.getGlobalBounds().contains(mousePos))
+			{
+				isLocked = !isLocked;
+				sys.ToggleLock(planetIndex);
+			}
+			else if (btnNextSurface.contains(mousePos))
+			{
+				btnNextSurface.ButtonPressed();
+				int newSurface = sys.ChangeSurface(planetIndex, true);
+				UpdateSurfaceName(newSurface);
+			}
 			else if (slPlanetSize.contains(mousePos))
 			{
 				slPlanetSize.SetModify(true);
@@ -159,18 +187,6 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			{
 				slPlanetVelMagnitude.SetModify(true);
 				currentSlider = MenuSlider::pVelMag;
-			}
-			else if (btnPreviousSurface.contains(mousePos))
-			{
-				btnPreviousSurface.ButtonPressed();
-				int newSurface = sys.ChangeSurface(planetIndex, false);
-				UpdateSurfaceName(newSurface);
-			}
-			else if (btnNextSurface.contains(mousePos))
-			{
-				btnNextSurface.ButtonPressed();
-				int newSurface = sys.ChangeSurface(planetIndex, true);
-				UpdateSurfaceName(newSurface);
 			}
 			else if (btnPlanetDelete.contains(mousePos))
 			{
@@ -214,28 +230,44 @@ void Menu::MouseReleased()
 	@param sys - the planet system object to update the planets outline.
 	@param pInd - if pInd >= 0, edit the planet at index pInd. If pInd == -1, toggle between the main menu and editing the planet at index 0.
 */
-void Menu::SwitchMenus(PlanetSystem& sys, int pInd)
+void Menu::SwitchMenus(PlanetSystem& sys, int pInd, std::pair<int, int> planetsExploded)
 {
 	if (planetIndex == -1) // currently on the main menu
 	{
-		btnSwitchMenu.ButtonPressed();
-		if (pInd == -1) planetIndex = 0; // button is clicked
-		else planetIndex = pInd; // planet is clicked
-		EditPlanet(sys.Editing(planetIndex));
+		if (planetsExploded.first == -1)
+		{
+			btnSwitchMenu.ButtonPressed();
+			if (pInd == -1) planetIndex = 0; // button is clicked
+			else planetIndex = pInd; // planet is clicked
+			EditPlanet(sys.Editing(planetIndex));
+		}
 	}
 	else // currently on the 'edit planet' menu
 	{
 		if (pInd == -1) // switch to the main menu
 		{
-			btnSwitchMenu.ButtonPressed();
-			planetIndex = -1;
-			sys.RemoveOutlines();
+			// don't switch to main menu if planets collide and we're not currently editting one of the the planets that has been exploded.
+			if (planetsExploded.first == -1 || planetsExploded.first == planetIndex || planetsExploded.second == planetIndex)
+			{
+				btnSwitchMenu.ButtonPressed();
+				planetIndex = -1;
+				sys.RemoveOutlines();
+			}
 		}
 		else // edit a different planet
 		{
 			planetIndex = pInd; // planet is clicked
 			EditPlanet(sys.Editing(planetIndex));
 		}
+	}
+}
+
+void Menu::UpdatePlanetDisplay(const Planet& p, int pInd)
+{
+	if (pInd == -1 || pInd == planetIndex)
+	{
+		planetDisplay = p;
+		planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
 	}
 }
 
@@ -250,8 +282,8 @@ void Menu::EditPlanet(const Planet& p)
 	slPlanetVelDirection.SetValue(p.GetVelDirection());
 	slPlanetVelMagnitude.SetValue(p.GetVelMagnitude());
 	UpdateSurfaceName(p.GetSurface());
-	planetDisplay = p;
-	planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
+	UpdatePlanetDisplay(p);
+	isLocked = p.IsLocked();
 }
 
 void Menu::UpdateSurfaceName(int surfaceIndex)
@@ -313,8 +345,7 @@ void Menu::UpdateSlider(float mouseX, PlanetSystem& sys)
 		break;
 	case MenuSlider::pSize:
 		slPlanetSize.Update(mouseX);
-		planetDisplay = sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue());
-		planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
+		UpdatePlanetDisplay(sys.SetPlanetRadius(planetIndex, slPlanetSize.GetValue()));
 		break;
 	case MenuSlider::pDensity:
 		slPlanetDensity.Update(mouseX);
@@ -429,6 +460,10 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 			target.draw(btnPreviousSurface, states);
 			target.draw(surfaceName, states);
 			target.draw(planetDisplay, states);
+			if (isLocked)
+				target.draw(lockedSprite, states);
+			else
+				target.draw(unlockedSprite, states);
 			target.draw(btnNextSurface, states);
 			target.draw(slPlanetSize, states);
 			target.draw(slPlanetDensity, states);

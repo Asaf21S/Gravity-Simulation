@@ -102,7 +102,7 @@ int main()
         window.clear();
         Time elapsed = clock.restart();
 
-        planetSystem.Update(elapsed);
+        planetSystem.Update(elapsed, menu);
         if (planetSystem.TrackMouse()) planetSystem.UpdateArrow(Vector2f(Mouse::getPosition(window)));
         if (menu.TrackMouse()) menu.UpdateSlider(float(Mouse::getPosition(window).x), planetSystem);
         if (menu.MenuIsCollapsed()) menu.CollapseMenu();
