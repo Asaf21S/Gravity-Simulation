@@ -9,11 +9,8 @@ class Particle : public Drawable, public Transformable
 
     CircleShape particle;
     Vector2f velocity;
-    bool isSparkling, firstHalf;
-    Time sparklingTime;
 
     void Update();
-    void Sparkle(Time elapsed);
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:

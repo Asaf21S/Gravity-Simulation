@@ -15,7 +15,10 @@ class PlanetSystem : public Drawable, public Transformable
 {
     Vector2u windowSize;
     std::vector<Planet> planets;
-    std::vector<Particle> backgroundParticles;
+    bool isSparkling;
+    bool firstHalfSparkle;
+    Time sparklingTime;
+    VertexArray spark;
     std::vector<Particle> explosionParticles;
     bool isPaused;
     float GravitationalConst;
@@ -25,8 +28,8 @@ class PlanetSystem : public Drawable, public Transformable
     int setVelocityInd;
     float currentMaxR;
 
-    Texture planetShadowTexture, planetTextures[TEXTURES_AMOUNT];
-    Sprite planetShadowSprite, planetSprites[TEXTURES_AMOUNT];
+    Texture backgroundTexture, planetShadowTexture, planetTextures[TEXTURES_AMOUNT];
+    Sprite backgroundSprite, planetShadowSprite, planetSprites[TEXTURES_AMOUNT];
     std::list<Texture> finalTex;
     std::vector<float> xValues;
 
@@ -42,6 +45,7 @@ public:
     void Update(Time elapsed, Menu& menu);
     void RemovePlanet(int index = -1);
     void ClearEverything();
+    void Sparkle(Time elapsed);
     bool GetState();
     void ToggleState();
     void ToggleArrowVisibility(bool isVel);

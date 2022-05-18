@@ -6,6 +6,9 @@
 */
 PlanetSystem::PlanetSystem(Vector2u windowSize) :
     windowSize(windowSize),
+    isSparkling(false),
+    firstHalfSparkle(true),
+    spark(PrimitiveType::TriangleFan, 10),
     GravitationalConst(1e-2),
     showVel(false),
     showAcc(false),
@@ -17,20 +20,26 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
 {
     srand(time(0));
 
-    int particleAmount = 100 + (rand() % 21);
-    for (int p = 0; p < particleAmount; p++)
-    {
-        Vector2f pos = Vector2f(rand() % windowSize.x, rand() % windowSize.y);
-        float radius = 1 + (rand() % 4);
-        float degree = rand() % 360;
-        degree *= M_PI / 180.0f;
-        float mag = float(rand() % 80) / 1000.0;
-        Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
-        backgroundParticles.push_back(Particle(pos, radius, vel));
-    }
+    if (!backgroundTexture.loadFromFile("Textures/stars_milky_way.jpg"))
+        std::cerr << "Unable to load stars_milky_way texture." << std::endl;
+    backgroundSprite.setTexture(backgroundTexture);
+
+    float rad = 3;
+    spark[0].position = Vector2f(0, 0);
+    spark[2].position = Vector2f(rad, rad);
+    spark[4].position = Vector2f(-rad, rad);
+    spark[6].position = -Vector2f(rad, rad);
+    spark[8].position = -Vector2f(-rad, rad);
+
+    spark[1].color = Color::Cyan;
+    spark[3].color = Color::Cyan;
+    spark[5].color = Color::Cyan;
+    spark[7].color = Color::Cyan;
+    spark[9].color = Color::Cyan;
 
     if (!planetShadowTexture.loadFromFile("Textures/planet.jpg"))
         std::cerr << "Unable to load planet shadow texture." << std::endl;
+    planetShadowSprite.setTexture(planetShadowTexture);
 
     /**
     * Source: https://www.solarsystemscope.com/textures/
@@ -61,7 +70,6 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
     if (!planetTextures[9].loadFromFile("Textures/venus.jpg"))
         std::cerr << "Unable to load venus texture." << std::endl;
 
-    planetShadowSprite.setTexture(planetShadowTexture);
     for (int i = 0; i < TEXTURES_AMOUNT; i++)
     {
         planetSprites[i].setTexture(planetTextures[i]);
@@ -137,26 +145,19 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
     // update particles
     if (!isPaused)
     {
-        // delete background particles that outside the frame
-        for (int i = 0; i < backgroundParticles.size(); i++)
-        {
-            backgroundParticles[i].Update();
-            if (backgroundParticles[i].isSparkling) backgroundParticles[i].Sparkle(elapsed);
-            if (backgroundParticles[i].particle.getPosition().x < -backgroundParticles[i].particle.getRadius() ||
-                backgroundParticles[i].particle.getPosition().x > windowSize.x + backgroundParticles[i].particle.getRadius() ||
-                backgroundParticles[i].particle.getPosition().y < -backgroundParticles[i].particle.getRadius() ||
-                backgroundParticles[i].particle.getPosition().y > windowSize.y + backgroundParticles[i].particle.getRadius())
-            {
-                backgroundParticles.erase(backgroundParticles.begin() + i);
-                break;
-            }
-        }
         // sparkle-effect
-        if (rand() % 40 == 0)
+        if (isSparkling)
         {
-            // choose random particle:
-            int i = rand() % backgroundParticles.size();
-            backgroundParticles[i].isSparkling = true;
+            Sparkle(elapsed);
+        }
+        else if (rand() % 40 == 0)
+        {
+            isSparkling = true;
+            Vector2f pos = Vector2f(rand() % windowSize.x, rand() % windowSize.y);
+            for (int i = 0; i < spark.getVertexCount(); i++)
+            {
+                spark[i].position += pos;
+            }
         }
 
         // delete explosion particles that outside the frame
@@ -444,6 +445,39 @@ void PlanetSystem::ClearEverything()
     setVelocityInd = -1;
 }
 
+void PlanetSystem::Sparkle(Time elapsed)
+{
+    sparklingTime += elapsed;
+    if (sparklingTime.asSeconds() > 1)
+    {
+        sparklingTime = Time::Zero;
+        isSparkling = false;
+        firstHalfSparkle = true;
+
+        Vector2f pos = spark[0].position;
+        for (int i = 0; i < spark.getVertexCount(); i++)
+        {
+            spark[i].position -= pos;
+        }
+    }
+    else if (sparklingTime.asSeconds() > 0.5)
+    {
+        firstHalfSparkle = false;
+    }
+
+    if (isSparkling)
+    {
+        float progress = firstHalfSparkle ? sparklingTime.asSeconds() : 1 - sparklingTime.asSeconds();
+        progress *= 20;
+
+        spark[1].position = spark[0].position + Vector2f(progress, 0);
+        spark[3].position = spark[0].position + Vector2f(0, progress);
+        spark[5].position = spark[0].position - Vector2f(progress, 0);
+        spark[7].position = spark[0].position - Vector2f(0, progress);
+        spark[9].position = spark[0].position + Vector2f(progress, 0);
+    }
+}
+
 /**
     Toggle the state of the simulation - whether it's on pause or running.
 */
@@ -634,10 +668,8 @@ void PlanetSystem::draw(RenderTarget& target, RenderStates states) const
     states.texture = NULL;
 
     // draw the particles
-    for (int i = 0; i < backgroundParticles.size(); i++)
-    {
-        target.draw(backgroundParticles[i], states);
-    }
+    target.draw(backgroundSprite, states);
+    if (isSparkling) target.draw(spark);
     for (int i = 0; i < explosionParticles.size(); i++)
     {
         target.draw(explosionParticles[i], states);
