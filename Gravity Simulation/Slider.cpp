@@ -161,5 +161,5 @@ void Slider::draw(RenderTarget& target, RenderStates states) const
 */
 bool Slider::contains(Vector2f point)
 {
-	return std::hypotf(slider.getPosition().x - point.x, slider.getPosition().y - point.y) <= slider.getRadius();
+	return std::hypotf(slider.getPosition().x - point.x, slider.getPosition().y - point.y) <= slider.getRadius() || axis.getGlobalBounds().contains(point);
 }

@@ -252,6 +252,9 @@ void Menu::SwitchMenus(PlanetSystem& sys, int pInd, std::pair<int, int> planetsE
 				btnSwitchMenu.ButtonPressed();
 				planetIndex = -1;
 				sys.RemoveOutlines();
+
+				// if a planet has exploded and we currently modifying one of its slider, need to stop that.
+				MouseReleased();
 			}
 		}
 		else // edit a different planet
@@ -268,6 +271,15 @@ void Menu::UpdatePlanetDisplay(const Planet& p, int pInd)
 	{
 		planetDisplay = p;
 		planetDisplay.LockPlanet(true, Vector2f(MENU_WIDTH / 2, 320));
+	}
+}
+
+void Menu::UpdateVelocitySliders(int pInd, float dir, float mag)
+{
+	if (pInd == planetIndex)
+	{
+		slPlanetVelDirection.SetValue(dir);
+		slPlanetVelMagnitude.SetValue(mag);
 	}
 }
 

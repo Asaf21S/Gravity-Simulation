@@ -21,6 +21,7 @@ class Planet : public Drawable, public Transformable
     VertexArray velArrow;
     bool showVelArrow;
     bool velTooSmall;
+    Vector2f velDirection;
     Vector2f acceleration;
     VertexArray accArrow;
     bool showAccArrow;

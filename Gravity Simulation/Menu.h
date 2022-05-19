@@ -68,6 +68,7 @@ public:
 	void MouseReleased();
 	void SwitchMenus(PlanetSystem& sys, int pInd = -1, std::pair<int, int> planetsExploded = std::pair<int, int>(-1, -1));
 	void UpdatePlanetDisplay(const Planet& p, int pInd = -1);
+	void UpdateVelocitySliders(int pInd, float dir, float mag);
 	bool TrackMouse();
 	bool MenuIsCollapsed();
 	void CollapseMenu();

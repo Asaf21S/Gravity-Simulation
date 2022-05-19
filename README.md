@@ -24,7 +24,7 @@ if (!isPaused)
 [Week 8](#244---304-12-hours-total)  
 [Week 9](#15---75-7-hours-total)  
 [Week 10](#85---145-7-hours-total)  
-[Week 11](#155---215--hours-total)  
+[Week 11](#155---215-12-hours-and-30-minutes-total)  
 
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
@@ -110,7 +110,7 @@ Without Shadow | With Shadow
 
 Updating the report and searching for various planets surface's textures - about 1 hour.  
 
-### <ins>15.5 - 21.5:</ins> (? hours total)
+### <ins>15.5 - 21.5:</ins> (12 hours and 30 minutes total)
 Adding textures for every planet, not just one - about 1 hour and 15 minutes.  
 Assigning random surface texture for each planet. Planets explodes into planets with the same surface - about 1 hour and 15 minutes.  
 <img src="Media/15-5-surfaceTextures.png" width="731" height="265" />  
@@ -134,4 +134,9 @@ Displaying the planet in the edit menu and enabling the option to change its sur
 Enabling an option to lock and unlock a planet in its current position. Fixing a bug - when changing the planet radius (whether from its size slider in the menu or from colliding with another planet), the texture of the display planet in the edit menu gets distorted - about 2 hours and 50 minutes.  
 Fixing a bug, now when wer'e on the edit menu of a planet that is being exploded or absorbed, it will go back to the main menu - about 1 hour.  
 Changed background to a texture and modified the sparkling effect accordingly - about 1 hour.  
-
+Minor features and bug fixes - about 2 hours and 10 minutes:  
+* Bug fix - menu items now cannot be clicked while setting the velocity arrow.  
+* Feature - clicking on a slider axis, now modifies it as well.  
+* Feature - on the edit menu, the velocity direction and magnitude sliders are updated on every frame.  
+* Bug fix - raised an error when a planet exploded while modifying a slider on its edit menu.  
+* Bug fix - initializing, changing or locking a planet to a 0 velocity, now remembers the last direction of the velocity.  

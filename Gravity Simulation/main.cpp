@@ -85,7 +85,10 @@ int main()
             {
                 // Mouse is first clicked
                 if (menu.IsClickInside(Vector2f(Mouse::getPosition(window))))
-                    menu.MouseClicked(Vector2f(Mouse::getPosition(window)), planetSystem);
+                {
+                    if (!planetSystem.TrackMouse())
+                        menu.MouseClicked(Vector2f(Mouse::getPosition(window)), planetSystem);
+                }
                 else
                     planetSystem.MouseClicked(Vector2f(Mouse::getPosition(window)), menu);
             }

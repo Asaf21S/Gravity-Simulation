@@ -11,6 +11,7 @@ Planet::Planet(Vector2f position, int surfaceIndex) : // -1 for random
     velArrow(PrimitiveType::TriangleFan, 7),
     showVelArrow(false),
     velTooSmall(true),
+    velDirection(0, 0),
     acceleration(0, 0),
     accArrow(PrimitiveType::TriangleFan, 7),
     showAccArrow(false),
@@ -95,6 +96,8 @@ void Planet::SetArrow(Vector2f arrowPoint, bool isVel)
 
         velocity = arrowPoint - circleEdge;
         velocity /= ARROW_LENGTH_TO_VELOCITY;
+        if (velocity.x != 0 || velocity.y != 0)
+            velDirection = velocity;
     }
     else
     {
@@ -144,6 +147,8 @@ void Planet::UpdateArrow(bool isVel)
 void Planet::SetVelocity(Vector2f vel)
 {
     velocity = vel;
+    if (velocity.x != 0 || velocity.y != 0)
+        velDirection = velocity;
 }
 
 /**
@@ -230,7 +235,8 @@ float Planet::GetDensity() const
 */
 float Planet::GetVelDirection() const
 {
-    float degree = atan2(velocity.y, velocity.x) * 180 / M_PI;
+    //std::cout << "A " << velocity.x << " " << velocity.y << std::endl;
+    float degree = atan2(velDirection.y, velDirection.x) * 180 / M_PI;
     if (degree < 0) degree += 360;
     degree = 360 - degree;
     return degree;
@@ -288,6 +294,8 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
         {
             velocity += acceleration;
             planet.move(velocity);
+            if (velocity.x != 0 || velocity.y != 0)
+                velDirection = velocity;
         }
     }
     

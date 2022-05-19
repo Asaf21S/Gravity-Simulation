@@ -226,6 +226,9 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
 
         planets[i].Update(elapsed, isPaused);
 
+        // updating the edit menu:
+        menu.UpdateVelocitySliders(i, planets[i].GetVelDirection(), planets[i].GetVelMagnitude());
+
         // check for collisions:
         Vector2f pos1 = planets[i].GetPosition();
 
@@ -400,7 +403,10 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
 void PlanetSystem::UpdateArrow(Vector2f mousePos)
 {
     if (Planet::Dist(mousePos, planets[setVelocityInd].GetPosition()) < planets[setVelocityInd].GetRadius())
+    {
         planets[setVelocityInd].SetVelocity(Vector2f(0.0f, 0.0f));
+        planets[setVelocityInd].velDirection = mousePos - planets[setVelocityInd].GetPosition();
+    }
     else
         planets[setVelocityInd].SetArrow(mousePos, true);
 }
@@ -607,6 +613,7 @@ void PlanetSystem::SetPlanetVelDir(int index, float dir)
     dir = 360 - dir;
     dir *= M_PI / 180.0f;
     planets[index].SetVelocity(Vector2f(mag * cos(dir), mag * sin(dir)));
+    planets[index].velDirection = Vector2f(cos(dir), sin(dir));
 }
 
 /**
@@ -617,8 +624,10 @@ void PlanetSystem::SetPlanetVelDir(int index, float dir)
 void PlanetSystem::SetPlanetVelMag(int index, float mag)
 {
     CheckIndex(index);
-    if (mag == 0) mag = 0.001;
-    planets[index].velocity *= mag / planets[index].GetVelMagnitude();
+    float dir = planets[index].GetVelDirection();
+    dir = 360 - dir;
+    dir *= M_PI / 180.0f;
+    planets[index].SetVelocity(Vector2f(mag * cos(dir), mag * sin(dir)));
 }
 
 int PlanetSystem::ChangeSurface(int index, bool isNext)
