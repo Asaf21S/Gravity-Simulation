@@ -35,39 +35,12 @@ int main()
                 // add here things to do before the window is closed
                 window.close();
                 break;
-
-            case Event::KeyPressed: // To achieve smooth movement with events, you must use a boolean that you set on KeyPressed and clear on KeyReleased
-                break;
-
             case Event::LostFocus:
                 //PauseSimulation.pause();
                 break;
-
             case Event::GainedFocus:
                 //ResumeSimulation.resume();
                 break;
-
-            case Event::MouseWheelScrolled:
-                if (event.mouseWheelScroll.wheel == Mouse::VerticalWheel)
-                    std::cout << "wheel type: vertical" << std::endl;
-                else if (event.mouseWheelScroll.wheel == Mouse::HorizontalWheel)
-                    std::cout << "wheel type: horizontal" << std::endl;
-                else
-                    std::cout << "wheel type: unknown" << std::endl;
-                std::cout << "wheel movement: " << event.mouseWheelScroll.delta << std::endl;
-                std::cout << "mouse x: " << event.mouseWheelScroll.x << std::endl;
-                std::cout << "mouse y: " << event.mouseWheelScroll.y << std::endl;
-                break;
-
-            case Event::MouseButtonPressed:
-                if (event.mouseButton.button == Mouse::Right)
-                {
-                    std::cout << "the right button was pressed" << std::endl;
-                    std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-                    std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-                }
-                break;
-
             default:
                 break;
             }

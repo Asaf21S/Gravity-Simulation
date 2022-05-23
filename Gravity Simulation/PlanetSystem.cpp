@@ -163,11 +163,8 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
         // delete explosion particles that outside the frame
         for (int i = 0; i < explosionParticles.size(); i++)
         {
-            explosionParticles[i].Update();
-            if (explosionParticles[i].particle.getPosition().x < -explosionParticles[i].particle.getRadius() ||
-                explosionParticles[i].particle.getPosition().x > windowSize.x + explosionParticles[i].particle.getRadius() ||
-                explosionParticles[i].particle.getPosition().y < -explosionParticles[i].particle.getRadius() ||
-                explosionParticles[i].particle.getPosition().y > windowSize.y + explosionParticles[i].particle.getRadius())
+            explosionParticles[i].Update(elapsed);
+            if (!explosionParticles[i].IsVisible())
             {
                 explosionParticles.erase(explosionParticles.begin() + i);
                 break;
@@ -189,6 +186,14 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
     std::vector<Planet> newPlanets;
     for (int i = 0; i < planets.size(); i++)
     {
+        // removing the planet if it is too far
+        if (planets[i].GetPosition().x < -2 * int(windowSize.x) || planets[i].GetPosition().x > 3 * int(windowSize.x) ||
+            planets[i].GetPosition().y < -2 * int(windowSize.y) || planets[i].GetPosition().y > 3 * int(windowSize.y))
+        {
+            RemovePlanet(i);
+            continue;
+        }
+
         // compute gravitational force
         planets[i].acceleration.x = 0;
         planets[i].acceleration.y = 0;
@@ -245,6 +250,7 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
                 particlePosition /= r1 + r2;
                 float minVelMag = planets[i].GetVelMagnitude() > planets[j].GetVelMagnitude() ? planets[i].GetVelMagnitude() : planets[j].GetVelMagnitude();
                 int maxVelMag = 3 * minVelMag > 10 ? 3 * minVelMag : 10;
+                int jSurface = planets[j].planetSurfaceInd;
 
                 int particleAmount = 5 + (rand() % 6);
                 for (int p = 0; p < particleAmount; p++) // add explosion particles to one side
@@ -255,7 +261,8 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
                     degree *= M_PI / 180.0f;
                     float mag = minVelMag + (rand() % maxVelMag);
                     Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
-                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
+                    int particleSurface = float(p) / float(particleAmount) > 0.5 ? currentSurface : jSurface;
+                    explosionParticles.push_back(Particle(particlePosition, radius, vel, particleSurface));
                 }
 
                 particleAmount = 5 + (rand() % 6);
@@ -268,7 +275,8 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
                     degree *= M_PI / 180.0f;
                     float mag = minVelMag + (rand() % maxVelMag);
                     Vector2f vel = Vector2f(mag * cos(degree), mag * sin(degree));
-                    explosionParticles.push_back(Particle(particlePosition, radius, vel));
+                    int particleSurface = float(p) / float(particleAmount) > 0.5 ? currentSurface : jSurface;
+                    explosionParticles.push_back(Particle(particlePosition, radius, vel, particleSurface));
                 }
 
                 if (r1 > 40 && r2 > 40) // both planets big enough

@@ -479,8 +479,11 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 			target.draw(btnNextSurface, states);
 			target.draw(slPlanetSize, states);
 			target.draw(slPlanetDensity, states);
-			target.draw(slPlanetVelDirection, states);
-			target.draw(slPlanetVelMagnitude, states);
+			if (!isLocked)
+			{
+				target.draw(slPlanetVelDirection, states);
+				target.draw(slPlanetVelMagnitude, states);
+			}
 			target.draw(btnPlanetDelete, states);
 		}
 	}

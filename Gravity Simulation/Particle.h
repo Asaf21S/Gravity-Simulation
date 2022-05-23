@@ -9,10 +9,14 @@ class Particle : public Drawable, public Transformable
 
     CircleShape particle;
     Vector2f velocity;
+    Color color;
+    Time lifeTime;
+    float fadingTime;
 
-    void Update();
+    void Update(Time elapsed);
     virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
-    Particle(Vector2f position, float radius, Vector2f velocity);
+    Particle(Vector2f position, float radius, Vector2f velocity, int surfaceIndex);
+    bool IsVisible();
 };
