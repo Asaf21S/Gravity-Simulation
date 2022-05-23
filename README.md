@@ -25,6 +25,7 @@ if (!isPaused)
 [Week 9](#15---75-7-hours-total)  
 [Week 10](#85---145-7-hours-total)  
 [Week 11](#155---215-12-hours-and-30-minutes-total)  
+[Week 12](#225---285--hours-total)  
 
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
@@ -140,3 +141,9 @@ Minor features and bug fixes - about 2 hours and 10 minutes:
 * Feature - on the edit menu, the velocity direction and magnitude sliders are updated on every frame.  
 * Bug fix - raised an error when a planet exploded while modifying a slider on its edit menu.  
 * Bug fix - initializing, changing or locking a planet to a 0 velocity, now remembers the last direction of the velocity.  
+
+### <ins>22.5 - 28.5:</ins> (? hours total)
+The particles from planet explosions, now fade away and have colors according to the planets' surface - about 1 hour.  
+Hiding the velocity direction and magnitude sliders when the planet is locked - about 15 minutes.  
+Removing planets which are too far away - about 20 minutes.  
+
