@@ -3,8 +3,7 @@ Computer Graphics Lab
 This simulation demonstrate the interaction between planetary bodies through gravitational forces. The user can create planets with different size, density and initial velocity, can edit each planet separately and control the gravitational constant. When the setup is ready, the user can then click on the Start button and the simulation will begin.  
 The concept of gravity is shown here as a force of attraction between each pair of planets that the user created. Each different setup will produce different results which may include collisions or any kind of periodic revolutions such as 2 planets orbit around each other.
 Some collisions make a big explosions and create several smaller planets/asteroids, while others, don’t break things apart but leave impact craters. For instance, Mars has been shaped by impact. Its northern half is smooth and low, its southern half mountainous and rough.  
-<img src="Media/1-5-equations.png" width="671" height="427" />  
-<img src="Media/2-5-stepPart.png" width="747" height="205" />  
+<img src="Media/24-5-equations.png" width="745" height="802" />  
 ```cpp
 if (!isPaused)
 {
@@ -146,4 +145,4 @@ Minor features and bug fixes - about 2 hours and 10 minutes:
 The particles from planet explosions, now fade away and have colors according to the planets' surface - about 1 hour.  
 Hiding the velocity direction and magnitude sliders when the planet is locked - about 15 minutes.  
 Removing planets which are too far away - about 20 minutes.  
-
+Learning about the mathematics of orbit system and adding a Sun-Earth orbital system - 

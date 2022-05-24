@@ -14,8 +14,9 @@ Menu::Menu(Font& font) :
 	slConstG(Vector2f(MENU_WIDTH / 2, 240), 0, 100, 50, "Gravitational Constant", font),
 	cbVel(340, "Show Planet's Velocity", font, true),
 	cbAcc(400, "Show Planet's Acceleration", font, false),
-	btnClear(Vector2f(MENU_WIDTH / 2, 480), 240, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
-	btnState(Vector2f(MENU_WIDTH / 2, 580), 100, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
+	btnSunEarth(Vector2f(MENU_WIDTH / 2, 480), 150, 50, "Sun-Earth", "Sun-Earth", font, 28, Color::White, Color(153, 255, 153)),
+	btnClear(Vector2f(MENU_WIDTH / 2, 580), 240, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
+	btnState(Vector2f(MENU_WIDTH / 2, 680), 100, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
 	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 190), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
 	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 190), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
 	btnPreviousSurface(Vector2f(MENU_WIDTH / 2 - 105, 300), 20, 55, "<", "<", font, 56, Color(192, 192, 192), Color(192, 192, 192)),
@@ -128,6 +129,11 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 			{
 				cbAcc.Clicked();
 				sys.ToggleArrowVisibility(false);
+			}
+			else if (btnSunEarth.contains(mousePos))
+			{
+				btnSunEarth.ButtonPressed();
+				sys.ReadyTemplate();
 			}
 			else if (btnClear.contains(mousePos))
 			{
@@ -461,6 +467,7 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 			target.draw(slConstG, states);
 			target.draw(cbVel, states);
 			target.draw(cbAcc, states);
+			target.draw(btnSunEarth, states);
 			target.draw(btnClear, states);
 			target.draw(btnState, states);
 			target.draw(stats, states);

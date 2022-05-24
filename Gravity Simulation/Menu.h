@@ -36,6 +36,7 @@ class Menu : public Drawable, public Transformable
 	Slider slConstG;
 	CheckBox cbVel;
 	CheckBox cbAcc;
+	Button btnSunEarth;
 	Button btnClear;
 	Button btnState;
 	Text stats;

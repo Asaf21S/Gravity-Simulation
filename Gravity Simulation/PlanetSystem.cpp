@@ -202,7 +202,7 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
             if (i != j)
             {
                 Vector2f force = planets[j].GetPosition() - planets[i].GetPosition();
-                len = hypot(force.x, force.y);
+                len = Planet::Dist(force);
                 force /= len;
                 mag = GravitationalConst * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
                 force *= mag;
@@ -523,6 +523,35 @@ void PlanetSystem::ToggleArrowVisibility(bool isVel)
     }
 }
 
+void PlanetSystem::ReadyTemplate()
+{
+    ClearEverything();
+
+    // creating the sun
+    planets.push_back(Planet(Vector2f(windowSize) / 2.0f, 7));
+    finalTex.push_back(Texture());
+    planets.back().SetTexture(finalTex.back());
+    float initialXVal = rand() % planetTextures[7].getSize().x / 1.5;
+    xValues.push_back(initialXVal);
+    planets.back().SetRadius(100);
+    planets.back().LockPlanet(false);
+    planets.back().isLocked = true;
+
+    // creating the earth
+    float distance = 300;
+    planets.push_back(Planet(Vector2f(windowSize.x / 2.0f + distance, windowSize.y / 2.0f), 0));
+    finalTex.push_back(Texture());
+    planets.back().SetTexture(finalTex.back());
+    initialXVal = rand() % planetTextures[0].getSize().x / 1.5;
+    xValues.push_back(initialXVal);
+    planets.back().SetRadius(30);
+    // according to the Orbital Speed Formula: v = sqrt(G * Mcentral / R)
+    float v = sqrt(GravitationalConst * (planets[0].GetMass() + planets[1].GetMass()) / distance);
+    planets.back().SetVelocity(Vector2f(0, v));
+    if (showAcc) planets.back().ToggleArrowVisibility(false);
+    if (showVel) planets.back().ToggleArrowVisibility(true);
+}
+
 /**
     Increase the radius of a specific planet.
     @param index - the index of the planet to be expanded.
@@ -607,6 +636,7 @@ void PlanetSystem::SetPlanetDensity(int index, float density)
 {
     CheckIndex(index);
     planets[index].density = density;
+    planets[index].UpdateMass();
 }
 
 /**

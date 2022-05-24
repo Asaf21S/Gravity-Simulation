@@ -49,6 +49,7 @@ public:
     bool GetState();
     void ToggleState();
     void ToggleArrowVisibility(bool isVel);
+    void ReadyTemplate();
     bool TrackMouse();
     void UpdateArrow(Vector2f mousePos);
     void StopExpanding(bool isRemoved, int index = -1);

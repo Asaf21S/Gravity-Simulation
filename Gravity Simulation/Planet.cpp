@@ -294,6 +294,7 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
         {
             velocity += acceleration;
             planet.move(velocity);
+
             if (velocity.x != 0 || velocity.y != 0)
                 velDirection = velocity;
         }
