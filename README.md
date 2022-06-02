@@ -146,3 +146,4 @@ The particles from planet explosions, now fade away and have colors according to
 Hiding the velocity direction and magnitude sliders when the planet is locked - about 15 minutes.  
 Removing planets which are too far away - about 20 minutes.  
 Learning about the mathematics of orbit system and adding a Sun-Earth orbital system - about 4 hours and 30 minutes.  
+<img src="Media/2-6-sunEarth.gif" width="600" height="338" />  
