@@ -186,6 +186,11 @@ void Planet::Expand()
     UpdateMass();
 }
 
+void Planet::SetPosition(Vector2f position)
+{
+    planet.setPosition(position - Vector2f(GetRadius(), GetRadius()));
+}
+
 /**
     Get the position of the center of the planet.
 */
@@ -294,7 +299,7 @@ void Planet::Update(sf::Time elapsed, bool isPaused)
         {
             velocity += acceleration;
             planet.move(velocity);
-
+            
             if (velocity.x != 0 || velocity.y != 0)
                 velDirection = velocity;
         }

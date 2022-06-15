@@ -9,6 +9,8 @@
 #include "Particle.h"
 #include "Menu.h"
 using namespace sf;
+
+const float MOUSE_MASS = 268082.5731; // (1.0 * 4.0 * M_PI * pow(40, 3)) / 3.0;
 class Menu;
 
 class PlanetSystem : public Drawable, public Transformable
@@ -27,6 +29,8 @@ class PlanetSystem : public Drawable, public Transformable
     bool expandPlanet;
     int setVelocityInd;
     float currentMaxR;
+    int followerIndex;
+    bool mouseForce;
 
     Texture backgroundTexture, planetShadowTexture, planetTextures[TEXTURES_AMOUNT];
     Sprite backgroundSprite, planetShadowSprite, planetSprites[TEXTURES_AMOUNT];
@@ -42,16 +46,18 @@ public:
     void MouseClicked(Vector2f mousePos, Menu& menu);
     int GetAmount();
     void Expand(int index = -1);
-    void Update(Time elapsed, Menu& menu);
+    void Update(Time elapsed, Menu& menu, Vector2f mousePos);
     void RemovePlanet(int index = -1);
     void ClearEverything();
     void Sparkle(Time elapsed);
     bool GetState();
     void ToggleState();
     void ToggleArrowVisibility(bool isVel);
+    void ToggleMouseForce();
     void ReadyTemplate();
+    void CreateFollower(Vector2f mousePos);
     bool TrackMouse();
-    void UpdateArrow(Vector2f mousePos);
+    void UpdateFromMouse(Vector2f mousePos);
     void StopExpanding(bool isRemoved, int index = -1);
     void SetGConst(float value);
     const Planet& Editing(int index);

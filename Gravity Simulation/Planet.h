@@ -36,6 +36,7 @@ class Planet : public Drawable, public Transformable
     void SetVelocity(Vector2f vel);
     void ToggleArrowVisibility(bool isVel);
     void Expand();
+    void SetPosition(Vector2f position);
     Vector2f GetPosition();
     void SetTexture(Texture& tex);
     float GetMass();

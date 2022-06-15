@@ -12,7 +12,7 @@ class Slider;
 class Button;
 class CheckBox;
 
-const float MENU_WIDTH = 400.0f; // can't be less than 40
+const float MENU_WIDTH = 450.0f; // can't be less than 40
 const float COLLAPSE_MENU_WIDTH = 60.0f;
 
 enum class MenuSlider
@@ -36,7 +36,9 @@ class Menu : public Drawable, public Transformable
 	Slider slConstG;
 	CheckBox cbVel;
 	CheckBox cbAcc;
+	CheckBox cbMouseForce;
 	Button btnSunEarth;
+	Button btnAddFollower;
 	Button btnClear;
 	Button btnState;
 	Text stats;

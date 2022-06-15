@@ -8,11 +8,14 @@ class Button : public Drawable, public Transformable
 	RectangleShape button;
 	std::string text1, text2;
 	Text label;
+	Time clickEffectTime;
+	Color fillColor;
 	virtual void draw(RenderTarget& target, RenderStates states) const;
 
 public:
 	Button(Vector2f position, float width, float height, std::string text1, std::string text2, Font& font, int fontSize, Color fill, Color outline);
 	void ButtonPressed();
+	void Update(Time elapsed);
 	void move(float offsetX, float offsetY);
 	bool contains(Vector2f point);
 };

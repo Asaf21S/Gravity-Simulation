@@ -14,9 +14,11 @@ Menu::Menu(Font& font) :
 	slConstG(Vector2f(MENU_WIDTH / 2, 240), 0, 100, 50, "Gravitational Constant", font),
 	cbVel(340, "Show Planet's Velocity", font, true),
 	cbAcc(400, "Show Planet's Acceleration", font, false),
-	btnSunEarth(Vector2f(MENU_WIDTH / 2, 480), 150, 50, "Sun-Earth", "Sun-Earth", font, 28, Color::White, Color(153, 255, 153)),
-	btnClear(Vector2f(MENU_WIDTH / 2, 580), 240, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
-	btnState(Vector2f(MENU_WIDTH / 2, 680), 100, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
+	cbMouseForce(460, "Use Mouse as Gravitational Force", font, false),
+	btnSunEarth(Vector2f(MENU_WIDTH / 2, 540), 275, 50, "Sun-Earth", "Sun-Earth", font, 28, Color::White, Color(153, 255, 153)),
+	btnAddFollower(Vector2f(MENU_WIDTH / 2, 615), 275, 50, "Add Follower", "Add Follower", font, 28, Color::White, Color::Cyan),
+	btnClear(Vector2f(MENU_WIDTH / 2, 690), 275, 50, "Remove Everything", "Remove Everything", font, 28, Color::White, Color::Red),
+	btnState(Vector2f(MENU_WIDTH / 2, 765), 275, 50, "Start", "Pause", font, 28, Color::White, Color::Magenta),
 	btnPreviousPlanet(Vector2f(MENU_WIDTH / 2 - 40, 190), 50, 35, "<-", "<-", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
 	btnNextPlanet(Vector2f(MENU_WIDTH / 2 + 40, 190), 50, 35, "->", "->", font, 64, Color(204, 255, 255), Color(102, 102, 255)),
 	btnPreviousSurface(Vector2f(MENU_WIDTH / 2 - 105, 300), 20, 55, "<", "<", font, 56, Color(192, 192, 192), Color(192, 192, 192)),
@@ -72,6 +74,7 @@ void Menu::Init(PlanetSystem& sys, int height)
 {
 	if (cbVel.IsChecked()) sys.ToggleArrowVisibility(true);
 	if (cbAcc.IsChecked()) sys.ToggleArrowVisibility(false);
+	if (cbMouseForce.IsChecked()) sys.ToggleMouseForce();
 	menuBackground.setSize(Vector2f(MENU_WIDTH, height));
 	stats.setPosition(MENU_WIDTH / 2, height - 200);
 }
@@ -130,13 +133,24 @@ void Menu::MouseClicked(Vector2f mousePos, PlanetSystem& sys)
 				cbAcc.Clicked();
 				sys.ToggleArrowVisibility(false);
 			}
+			else if (cbMouseForce.contains(mousePos))
+			{
+				cbMouseForce.Clicked();
+				sys.ToggleMouseForce();
+			}
 			else if (btnSunEarth.contains(mousePos))
 			{
 				btnSunEarth.ButtonPressed();
 				sys.ReadyTemplate();
 			}
+			else if (btnAddFollower.contains(mousePos))
+			{
+				btnAddFollower.ButtonPressed();
+				sys.CreateFollower(mousePos);
+			}
 			else if (btnClear.contains(mousePos))
 			{
+				btnClear.ButtonPressed();
 				sys.ClearEverything();
 			}
 			else if (btnState.contains(mousePos))
@@ -262,6 +276,8 @@ void Menu::SwitchMenus(PlanetSystem& sys, int pInd, std::pair<int, int> planetsE
 				// if a planet has exploded and we currently modifying one of its slider, need to stop that.
 				MouseReleased();
 			}
+			else if (planetsExploded.first != -1 && planetsExploded.first < planetIndex) planetIndex--;
+			else if (planetsExploded.second != -1 && planetsExploded.second < planetIndex) planetIndex--;
 		}
 		else // edit a different planet
 		{
@@ -392,6 +408,13 @@ void Menu::UpdateStats(Time elapsed, bool isPaused, int amount)
 	if (!isPaused) lifeTime += elapsed;
 	std::string s = "Amount of planets: " + std::to_string(amount) + "\nYears passed : " + std::to_string(int(lifeTime.asSeconds()));
 	stats.setString(s);
+
+	btnSwitchMenu.Update(elapsed);
+	btnSunEarth.Update(elapsed);
+	btnAddFollower.Update(elapsed);
+	btnClear.Update(elapsed);
+	btnState.Update(elapsed);
+	btnPlanetDelete.Update(elapsed);
 }
 
 /**
@@ -467,7 +490,9 @@ void Menu::draw(RenderTarget& target, RenderStates states) const
 			target.draw(slConstG, states);
 			target.draw(cbVel, states);
 			target.draw(cbAcc, states);
+			target.draw(cbMouseForce, states);
 			target.draw(btnSunEarth, states);
+			target.draw(btnAddFollower, states);
 			target.draw(btnClear, states);
 			target.draw(btnState, states);
 			target.draw(stats, states);

@@ -25,6 +25,8 @@ if (!isPaused)
 [Week 10](#85---145-7-hours-total)  
 [Week 11](#155---215-12-hours-and-30-minutes-total)  
 [Week 12](#225---285-6-hours-total)  
+[Week 13](#295---46-0-hours-total)  
+[Week 14](#56---116-8-hours-total)  
 
 ### <ins>27.2 - 5.3:</ins> (6 hours total)
 Coming up with the general idea of the project and searching for the best fitting language and graphics library for it - about 1 hour.  
@@ -147,3 +149,16 @@ Hiding the velocity direction and magnitude sliders when the planet is locked - 
 Removing planets which are too far away - about 20 minutes.  
 Learning about the mathematics of orbit system and adding a Sun-Earth orbital system - about 4 hours and 30 minutes.  
 <img src="Media/2-6-sunEarth.gif" width="600" height="338" />  
+
+### <ins>29.5 - 4.6:</ins> (0 hours total)
+Didn't make progress due to other obligations
+
+### <ins>5.6 - 11.6:</ins> (8 hours total)
+Bug fix - planet who absorbed another planet got immoderate increase of density - about 30 minutes.  
+Bug fix - on editting a planet, if a planet with lower index was exploded, the edit menu was modifying a different planet - about 30 minutes.  
+Adding an option for a planet which directly follow the mouse, so its position is always where the mouse is - about 3 hours.  
+Adding an option to use the mouse as a gravitational force, so every planet is attracted to the mouse position - about 2 hours.  
+Adding a click effect on some of the buttons - about 1 hour and 30 minutes.  
+Demonstration of the mouse follower and button's click effect:  
+<img src="Media/15-6-mouseFollower.gif" width="600" height="338" />  
+Bug fix - the mouse follower planet was checked for collisions after the gravitational forces affected it - about 30 minutes.  

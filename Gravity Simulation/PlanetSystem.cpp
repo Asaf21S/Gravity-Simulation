@@ -15,6 +15,8 @@ PlanetSystem::PlanetSystem(Vector2u windowSize) :
     isPaused(true),
     showTrail(false),
     expandPlanet(false),
+    mouseForce(false),
+    followerIndex(-1),
     setVelocityInd(-1),
     currentMaxR(500)
 {
@@ -140,7 +142,7 @@ int PlanetSystem::GetAmount()
     The function computes the gravitational forces between the planets, and check for collisions.
     @param elapsed - the time passed since the last call.
 */
-void PlanetSystem::Update(Time elapsed, Menu& menu)
+void PlanetSystem::Update(Time elapsed, Menu& menu, Vector2f mousePos)
 {
     // update particles
     if (!isPaused)
@@ -190,26 +192,39 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
         if (planets[i].GetPosition().x < -2 * int(windowSize.x) || planets[i].GetPosition().x > 3 * int(windowSize.x) ||
             planets[i].GetPosition().y < -2 * int(windowSize.y) || planets[i].GetPosition().y > 3 * int(windowSize.y))
         {
+            menu.SwitchMenus(*this, -1, std::pair<int, int>(i, -1));
             RemovePlanet(i);
             continue;
         }
 
         // compute gravitational force
-        planets[i].acceleration.x = 0;
-        planets[i].acceleration.y = 0;
-        for (int j = 0; j < planets.size(); j++)
+        if (i != followerIndex)
         {
-            if (i != j)
+            planets[i].acceleration.x = 0;
+            planets[i].acceleration.y = 0;
+            for (int j = 0; j < planets.size(); j++)
             {
-                Vector2f force = planets[j].GetPosition() - planets[i].GetPosition();
+                if (i != j)
+                {
+                    Vector2f force = planets[j].GetPosition() - planets[i].GetPosition();
+                    len = Planet::Dist(force);
+                    force /= len;
+                    mag = GravitationalConst * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
+                    force *= mag;
+                    planets[i].AddForce(force);
+                }
+            }
+            if (mouseForce)
+            {
+                Vector2f force = mousePos - planets[i].GetPosition();
                 len = Planet::Dist(force);
                 force /= len;
-                mag = GravitationalConst * planets[i].GetMass() * planets[j].GetMass() / pow(len, 2);
+                mag = GravitationalConst * planets[i].GetMass() * MOUSE_MASS / pow(len, 2);
                 force *= mag;
                 planets[i].AddForce(force);
             }
+            // need to call planets[i].SetArrowVisibility before calling planets[i].Update
         }
-        // need to call planets[i].SetArrowVisibility before calling planets[i].Update
 
         // set the planet texture
         float r1 = planets[i].GetRadius();
@@ -337,51 +352,35 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
 
                     // in case we were on the edit menu of the planet that was exploded, going back to the main menu.
                     menu.SwitchMenus(*this, -1, std::pair<int, int>(i, j));
-
-                    planets.erase(planets.begin() + i);
-                    planets.erase(planets.begin() + j);
-                    finalTex.erase(GetTextureIterator(i));
-                    finalTex.erase(GetTextureIterator(j));
-                    xValues.erase(xValues.begin() + i);
-                    xValues.erase(xValues.begin() + j);
+                    RemovePlanet(i);
+                    RemovePlanet(j);
                 }
                 else if (r1 > 40 && r2 <= 40) // planet i absorb planet j
                 {
                     SetPlanetRadius(i, std::cbrt(std::pow(r1, 3) + 64000));
                     menu.UpdatePlanetDisplay(planets[i], i);
-                    SetPlanetDensity(i, planets[i].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+                    SetPlanetDensity(i, planets[i].GetDensity() + 0.01 + float((rand() % 100)) / 1000.0);
 
                     // in case we were on the edit menu of the planet that was absorbed, going back to the main menu.
                     menu.SwitchMenus(*this, -1, std::pair<int, int>(j, -1));
-
-                    planets.erase(planets.begin() + j);
-                    finalTex.erase(GetTextureIterator(j));
-                    xValues.erase(xValues.begin() + j);
+                    RemovePlanet(j);
                 }
                 else if (r2 > 40 && r1 <= 40) // planet j absorb planet i
                 {
                     SetPlanetRadius(j, std::cbrt(std::pow(r2, 3) + 64000));
                     menu.UpdatePlanetDisplay(planets[j], j);
-                    SetPlanetDensity(j, planets[j].GetDensity() + 0.1 + float((rand() % 10)) / 10.0);
+                    SetPlanetDensity(j, planets[j].GetDensity() + 0.01 + float((rand() % 100)) / 1000.0);
 
                     // in case we were on the edit menu of the planet that was absorbed, going back to the main menu.
                     menu.SwitchMenus(*this, -1, std::pair<int, int>(i, -1));
-
-                    planets.erase(planets.begin() + i);
-                    finalTex.erase(GetTextureIterator(i));
-                    xValues.erase(xValues.begin() + i);
+                    RemovePlanet(i);
                 }
                 else // both planets are too small
                 {
                     // in case we were on the edit menu of one of the planets, going back to the main menu.
                     menu.SwitchMenus(*this, -1, std::pair<int, int>(i, j));
-
-                    planets.erase(planets.begin() + i);
-                    planets.erase(planets.begin() + j);
-                    finalTex.erase(GetTextureIterator(i));
-                    finalTex.erase(GetTextureIterator(j));
-                    xValues.erase(xValues.begin() + i);
-                    xValues.erase(xValues.begin() + j);
+                    RemovePlanet(i);
+                    RemovePlanet(j);
                 }
                 break;
             }
@@ -408,15 +407,24 @@ void PlanetSystem::Update(Time elapsed, Menu& menu)
     Update the velocity arrow to point the mouse position.
     @param mousePos - the position of the mouse.
 */
-void PlanetSystem::UpdateArrow(Vector2f mousePos)
+void PlanetSystem::UpdateFromMouse(Vector2f mousePos)
 {
-    if (Planet::Dist(mousePos, planets[setVelocityInd].GetPosition()) < planets[setVelocityInd].GetRadius())
+    if (isPaused)
     {
-        planets[setVelocityInd].SetVelocity(Vector2f(0.0f, 0.0f));
-        planets[setVelocityInd].velDirection = mousePos - planets[setVelocityInd].GetPosition();
+        // set velocity arrow
+        if (Planet::Dist(mousePos, planets[setVelocityInd].GetPosition()) < planets[setVelocityInd].GetRadius())
+        {
+            planets[setVelocityInd].SetVelocity(Vector2f(0.0f, 0.0f));
+            planets[setVelocityInd].velDirection = mousePos - planets[setVelocityInd].GetPosition();
+        }
+        else
+            planets[setVelocityInd].SetArrow(mousePos, true);
     }
     else
-        planets[setVelocityInd].SetArrow(mousePos, true);
+    {
+        // follow mouse
+        planets[followerIndex].SetPosition(mousePos);
+    }
 }
 
 /**
@@ -425,7 +433,7 @@ void PlanetSystem::UpdateArrow(Vector2f mousePos)
 */
 bool PlanetSystem::TrackMouse()
 {
-    return setVelocityInd != -1;
+    return (isPaused && setVelocityInd != -1) || (!isPaused && followerIndex != -1);
 }
 
 /**
@@ -439,6 +447,9 @@ void PlanetSystem::RemovePlanet(int index)
     finalTex.erase(GetTextureIterator(index));
     xValues.erase(xValues.begin() + index);
     StopExpanding(true);
+
+    if (index == followerIndex) followerIndex = -1;
+    else if (index < followerIndex) followerIndex--;
 }
 
 /**
@@ -457,6 +468,7 @@ void PlanetSystem::ClearEverything()
         xValues.erase(xValues.begin() + i);
     }
     setVelocityInd = -1;
+    followerIndex = -1;
 }
 
 void PlanetSystem::Sparkle(Time elapsed)
@@ -523,6 +535,11 @@ void PlanetSystem::ToggleArrowVisibility(bool isVel)
     }
 }
 
+void PlanetSystem::ToggleMouseForce()
+{
+    mouseForce = !mouseForce;
+}
+
 void PlanetSystem::ReadyTemplate()
 {
     ClearEverything();
@@ -550,6 +567,21 @@ void PlanetSystem::ReadyTemplate()
     planets.back().SetVelocity(Vector2f(0, v));
     if (showAcc) planets.back().ToggleArrowVisibility(false);
     if (showVel) planets.back().ToggleArrowVisibility(true);
+}
+
+void PlanetSystem::CreateFollower(Vector2f mousePos)
+{
+    if (followerIndex == -1) // if there isn't already a follower
+    {
+        // creating the follower
+        followerIndex = planets.size();
+        planets.push_back(Planet(mousePos, -1));
+        finalTex.push_back(Texture());
+        planets.back().SetTexture(finalTex.back());
+        float initialXVal = rand() % planetTextures[planets.back().planetSurfaceInd].getSize().x / 1.5;
+        xValues.push_back(initialXVal);
+        planets.back().SetRadius(50);
+    }
 }
 
 /**
@@ -585,7 +617,7 @@ void PlanetSystem::StopExpanding(bool isRemoved, int index)
 */
 void PlanetSystem::SetGConst(float value)
 {
-    GravitationalConst = value / 5e4;
+    GravitationalConst = value / 5e3;
 }
 
 /**

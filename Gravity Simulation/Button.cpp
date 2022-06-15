@@ -16,7 +16,8 @@ Button::Button(Vector2f position, float width, float height, std::string text1, 
 	button(Vector2f(width, height)),
 	text1(text1),
 	text2(text2),
-	label(text1, font, fontSize)
+	label(text1, font, fontSize),
+	fillColor(fill)
 {
 	button.setPosition(position);
 	button.setOrigin(button.getLocalBounds().left + button.getLocalBounds().width / 2.0f, button.getLocalBounds().top + button.getLocalBounds().height / 2.0f);
@@ -28,6 +29,8 @@ Button::Button(Vector2f position, float width, float height, std::string text1, 
 	label.setString(text1);
 	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
 	label.setPosition(button.getPosition());
+
+	clickEffectTime = milliseconds(500);
 }
 
 /**
@@ -38,6 +41,20 @@ void Button::ButtonPressed()
 	label.setString(label.getString() == text1 ? text2 : text1);
 	label.setOrigin(label.getLocalBounds().left + label.getLocalBounds().width / 2.0f, label.getLocalBounds().top + label.getLocalBounds().height / 2.0f);
 	label.setPosition(button.getPosition());
+	clickEffectTime = Time::Zero;
+}
+
+void Button::Update(Time elapsed)
+{
+	if (clickEffectTime.asMilliseconds() < 500)
+	{
+		clickEffectTime += elapsed;
+		float percent = clickEffectTime.asMilliseconds() / 500.0f;
+		percent = 0.25 + percent * 0.75;
+		if (percent > 1) percent = 1;
+		Color c = Color(fillColor.r * percent, fillColor.g * percent, fillColor.b * percent);
+		button.setFillColor(c);
+	}
 }
 
 /**
