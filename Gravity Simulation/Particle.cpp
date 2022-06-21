@@ -5,6 +5,7 @@
     @param position - the position of the particle center.
     @param radius - particle's radius.
     @param velocity - particle's velocity.
+	@param surfaceIndex - the kind of surface.
 */
 Particle::Particle(Vector2f position, float radius, Vector2f velocity, int surfaceIndex) :
     particle(radius),
@@ -54,6 +55,10 @@ Particle::Particle(Vector2f position, float radius, Vector2f velocity, int surfa
     fadingTime = float(10 + (rand() % 15)) / 10.0f;
 }
 
+/**
+	Whether the particle is visible
+	@return true if the particle lifetime didn't pass the fading time.
+*/
 bool Particle::IsVisible()
 {
     return lifeTime.asSeconds() < fadingTime;
@@ -61,7 +66,7 @@ bool Particle::IsVisible()
 
 /**
     Update the particle on a new frame.
-    The function updates the particle's life time and position.
+    The function updates the particle's lifetime, position and color.
     @param elapsed - the time passed since the last call.
 */
 void Particle::Update(Time elapsed)

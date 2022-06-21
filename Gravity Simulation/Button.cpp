@@ -44,6 +44,11 @@ void Button::ButtonPressed()
 	clickEffectTime = Time::Zero;
 }
 
+/**
+	Update the button on a new frame.
+	The function updates the button's lifetime and color if it has been clicked recently.
+	@param elapsed - the time passed since the last call.
+*/
 void Button::Update(Time elapsed)
 {
 	if (clickEffectTime.asMilliseconds() < 500)

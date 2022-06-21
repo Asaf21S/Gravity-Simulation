@@ -151,7 +151,7 @@ Learning about the mathematics of orbit system and adding a Sun-Earth orbital sy
 <img src="Media/2-6-sunEarth.gif" width="600" height="338" />  
 
 ### <ins>29.5 - 4.6:</ins> (0 hours total)
-Didn't make progress due to other obligations
+Didn't make progress due to other obligations.
 
 ### <ins>5.6 - 11.6:</ins> (8 hours total)
 Bug fix - planet who absorbed another planet got immoderate increase of density - about 30 minutes.  

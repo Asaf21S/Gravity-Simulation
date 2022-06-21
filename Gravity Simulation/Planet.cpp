@@ -3,6 +3,7 @@
 /**
     Planet constructor.
     @param position - the position of the planet center.
+    @param surfaceIndex - the kind of surface.
 */
 Planet::Planet(Vector2f position, int surfaceIndex) : // -1 for random
     planet(0),
@@ -161,6 +162,11 @@ void Planet::ToggleArrowVisibility(bool isVel)
     else showAccArrow = !showAccArrow;
 }
 
+/**
+    Lock a planet in place.
+    @param display - whether the purpose of the locking is for the edit planet's menu (true) or not.
+    @param position - the position where the planet is locked.
+*/
 void Planet::LockPlanet(bool display, Vector2f position)
 {
     if (display)
@@ -186,6 +192,10 @@ void Planet::Expand()
     UpdateMass();
 }
 
+/**
+    Set the position of the planet.
+    @param position - the position to set the planet to.
+*/
 void Planet::SetPosition(Vector2f position)
 {
     planet.setPosition(position - Vector2f(GetRadius(), GetRadius()));
@@ -199,6 +209,10 @@ Vector2f Planet::GetPosition()
     return Vector2f(planet.getPosition().x + planet.getRadius(), planet.getPosition().y + planet.getRadius());
 }
 
+/**
+    Set the texture of the planet.
+    @param tex - the texture to set the planet to.
+*/
 void Planet::SetTexture(Texture& tex)
 {
     planet.setTexture(&tex);
@@ -255,11 +269,17 @@ float Planet::GetVelMagnitude() const
     return Dist(velocity);
 }
 
+/**
+    Get the surface kind index.
+*/
 int Planet::GetSurface() const
 {
     return planetSurfaceInd;
 }
 
+/**
+    Whether the planet is currently locked in place.
+*/
 bool Planet::IsLocked() const
 {
     return isLocked;

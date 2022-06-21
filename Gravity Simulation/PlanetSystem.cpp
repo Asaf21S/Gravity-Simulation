@@ -141,6 +141,8 @@ int PlanetSystem::GetAmount()
     Update the simulation on a new frame. 
     The function computes the gravitational forces between the planets, and check for collisions.
     @param elapsed - the time passed since the last call.
+    @param menu - the menu object to update on certain situations.
+    @param mousePos - the current mouse position.
 */
 void PlanetSystem::Update(Time elapsed, Menu& menu, Vector2f mousePos)
 {
@@ -471,6 +473,10 @@ void PlanetSystem::ClearEverything()
     followerIndex = -1;
 }
 
+/**
+    Create a sparkle effect.
+    @param elapsed - time elapsed since the beginning of the sparkle effect.
+*/
 void PlanetSystem::Sparkle(Time elapsed)
 {
     sparklingTime += elapsed;
@@ -535,11 +541,17 @@ void PlanetSystem::ToggleArrowVisibility(bool isVel)
     }
 }
 
+/**
+    Toggle the gravitational force of the mouse
+*/
 void PlanetSystem::ToggleMouseForce()
 {
     mouseForce = !mouseForce;
 }
 
+/**
+    Create a Sun-Earth ready template
+*/
 void PlanetSystem::ReadyTemplate()
 {
     ClearEverything();
@@ -569,6 +581,10 @@ void PlanetSystem::ReadyTemplate()
     if (showVel) planets.back().ToggleArrowVisibility(true);
 }
 
+/**
+    Create a planet which follows the mouse
+    @param mousePos - the position of the mouse.
+*/
 void PlanetSystem::CreateFollower(Vector2f mousePos)
 {
     if (followerIndex == -1) // if there isn't already a follower
@@ -700,6 +716,11 @@ void PlanetSystem::SetPlanetVelMag(int index, float mag)
     planets[index].SetVelocity(Vector2f(mag * cos(dir), mag * sin(dir)));
 }
 
+/**
+    Change the surface kind of the planet.
+    @param index - the index of the planet to change the surface to.
+    @param isNext - whether to change to the next surface or the previous surface.
+*/
 int PlanetSystem::ChangeSurface(int index, bool isNext)
 {
     CheckIndex(index);
@@ -707,6 +728,10 @@ int PlanetSystem::ChangeSurface(int index, bool isNext)
     return planets[index].planetSurfaceInd;
 }
 
+/**
+    Lock/unlock the planet.
+    @param index - the index of the planet to lock/unlock.
+*/
 void PlanetSystem::ToggleLock(int index)
 {
     CheckIndex(index);
@@ -732,6 +757,10 @@ void PlanetSystem::CheckIndex(int index)
     }
 }
 
+/**
+    Helper function that provide an iterator to a specific texture.
+    @param index - the index of the texture.
+*/
 std::list<Texture>::iterator PlanetSystem::GetTextureIterator(int index)
 {
     std::list<Texture>::iterator texPtrs = finalTex.begin();

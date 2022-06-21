@@ -287,6 +287,11 @@ void Menu::SwitchMenus(PlanetSystem& sys, int pInd, std::pair<int, int> planetsE
 	}
 }
 
+/**
+	Update the displayed planet on the edit planet's menu
+	@param p - the planet that has been updated.
+	@param pInd - the planet index.
+*/
 void Menu::UpdatePlanetDisplay(const Planet& p, int pInd)
 {
 	if (pInd == -1 || pInd == planetIndex)
@@ -296,6 +301,12 @@ void Menu::UpdatePlanetDisplay(const Planet& p, int pInd)
 	}
 }
 
+/**
+	Update the 2 velocity sliders on the edit planet's menu.
+	@param pInd - the planet index.
+	@param dir - the planet velocity direction.
+	@param mag - the planet velocity magnitude.
+*/
 void Menu::UpdateVelocitySliders(int pInd, float dir, float mag)
 {
 	if (pInd == planetIndex)
@@ -320,6 +331,10 @@ void Menu::EditPlanet(const Planet& p)
 	isLocked = p.IsLocked();
 }
 
+/**
+	Update the name of the surface.
+	@param surfaceIndex - the kind of surface.
+*/
 void Menu::UpdateSurfaceName(int surfaceIndex)
 {
 	std::string s;
